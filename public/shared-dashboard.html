@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Compartilhado - Confirmações</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 50%, #a0295e 100%);
+        }
+        .text-marsala { color: #9c2851; }
+        .text-gold { color: #d4af37; }
+        .btn-marsala {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 100%);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #333;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 100%);
+        }
+        .stat-card-green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .stat-card-blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .stat-card-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #333;
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .table-row:hover {
+            background-color: #f8fafc;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        .copy-success {
+            animation: copySuccess 0.5s ease-in-out;
+        }
+        @keyframes copySuccess {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white rounded-full p-3">
+                        <i class="fas fa-heart text-2xl text-marsala"></i>
+                    </div>
+                    <div>
+                        <h1 id="weddingTitle" class="text-2xl font-bold text-white">Carregando...</h1>
+                        <p class="text-pink-100">Dashboard Compartilhado</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button 
+                        id="refreshBtn"
+                        class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all duration-300 btn-hover"
+                        title="Atualizar dados"
+                    >
+                        <i class="fas fa-sync-alt mr-2"></i>Atualizar
+                    </button>
+                    
+                    <button 
+                        id="exportBtn"
+                        class="btn-gold text-black px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover font-semibold"
+                        title="Exportar para CSV"
+                    >
+                        <i class="fas fa-download mr-2"></i>Exportar
+                    </button>
+
+                    <button 
+                        id="shareBtn"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 btn-hover"
+                        title="Compartilhar Dashboard"
+                    >
+                        <i class="fas fa-share-alt mr-2"></i>Compartilhar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-600">Carregando dados...</p>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboard" class="hidden">
+            <!-- Estatísticas -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total de Confirmações -->
+                <div class="stat-card text-white rounded-xl p-6 card-shadow fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Total de Confirmações</p>
+                            <p id="totalConfirmations" class="text-3xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-users text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+
+                <!-- Total de Adultos -->
+                <div class="stat-card-green text-white rounded-xl p-6 card-shadow fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm font-medium">Total de Adultos</p>
+                            <p id="totalAdults" class="text-3xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-user text-4xl text-green-200"></i>
+                    </div>
+                </div>
+
+                <!-- Total de Crianças -->
+                <div class="stat-card-blue text-white rounded-xl p-6 card-shadow fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm font-medium">Total de Crianças</p>
+                            <p id="totalChildren" class="text-3xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-child text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+
+                <!-- Total Geral -->
+                <div class="stat-card-gold text-black rounded-xl p-6 card-shadow fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-800 text-sm font-medium">Total de Pessoas</p>
+                            <p id="totalPeople" class="text-3xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-heart text-4xl text-yellow-700"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lista de Convidados -->
+            <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fas fa-list mr-2 text-blue-500"></i>Lista de Convidados
+                    </h2>
+                    
+                    <!-- Filtro de busca -->
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput"
+                            placeholder="Buscar por nome..."
+                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                </div>
+
+                <!-- Tabela Responsiva -->
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto">
+                        <thead>
+                            <tr class="bg-gray-50 text-gray-700 text-sm font-semibold">
+                                <th class="px-4 py-3 text-left rounded-l-lg">ID</th>
+                                <th class="px-4 py-3 text-left">Responsável</th>
+                                <th class="px-4 py-3 text-left">Detalhes</th>
+                                <th class="px-4 py-3 text-center">Adultos</th>
+                                <th class="px-4 py-3 text-center">Crianças</th>
+                                <th class="px-4 py-3 text-center">Total</th>
+                                <th class="px-4 py-3 text-left">Telefone</th>
+                                <th class="px-4 py-3 text-left rounded-r-lg">Data/Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody id="guestsTableBody">
+                            <!-- Dados serão inseridos aqui -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Paginação -->
+                <div class="flex items-center justify-between mt-6">
+                    <div class="text-sm text-gray-700">
+                        Mostrando <span id="showingStart">1</span> a <span id="showingEnd">10</span> de <span id="totalGuests">0</span> convidados
+                    </div>
+                    <div class="flex space-x-2">
+                        <button id="prevPage" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <span id="currentPage" class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">1</span>
+                        <button id="nextPage" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de Compartilhamento -->
+        <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-share-alt mr-2 text-blue-500"></i>Compartilhar Dashboard
+                        </h3>
+                        <button id="closeShareModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">
+                        Compartilhe este link com os noivos para que eles possam acompanhar as confirmações:
+                    </p>
+                    
+                    <div class="flex items-center space-x-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="shareLink" 
+                            readonly
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                        >
+                        <button 
+                            id="copyLinkBtn"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            <i class="fas fa-copy mr-2"></i>Copiar
+                        </button>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button 
+                            id="whatsappShare"
+                            class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                        >
+                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                        </button>
+                        <button 
+                            id="emailShare"
+                            class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        >
+                            <i class="fas fa-envelope mr-2"></i>Email
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentWedding = null;
+        let weddingSlug = null;
+        let allGuests = [];
+        let filteredGuests = [];
+        let currentPage = 1;
+        const guestsPerPage = 10;
+
+        // Elementos do DOM
+        const loading = document.getElementById('loading');
+        const dashboard = document.getElementById('dashboard');
+        const weddingTitle = document.getElementById('weddingTitle');
+        const totalConfirmations = document.getElementById('totalConfirmations');
+        const totalAdults = document.getElementById('totalAdults');
+        const totalChildren = document.getElementById('totalChildren');
+        const totalPeople = document.getElementById('totalPeople');
+        const guestsTableBody = document.getElementById('guestsTableBody');
+        const searchInput = document.getElementById('searchInput');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const shareModal = document.getElementById('shareModal');
+        const closeShareModalBtn = document.getElementById('closeShareModal');
+        const shareLink = document.getElementById('shareLink');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+        const whatsappShare = document.getElementById('whatsappShare');
+        const emailShare = document.getElementById('emailShare');
+
+        // Obter slug da URL
+        function getWeddingSlug() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        // Carregar informações do casamento
+        async function loadWeddingInfo() {
+            try {
+                weddingSlug = getWeddingSlug();
+                const response = await fetch(`/api/wedding/${weddingSlug}`);
+                
+                if (!response.ok) {
+                    throw new Error('Casamento não encontrado');
+                }
+
+                currentWedding = await response.json();
+                weddingTitle.textContent = `${currentWedding.bride_name} & ${currentWedding.groom_name}`;
+                
+                // Carregar lista de convidados
+                await loadGuests();
+                
+                loading.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Erro ao carregar casamento:', error);
+                loading.innerHTML = `
+                    <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                    <p class="text-red-600">Casamento não encontrado ou link inválido</p>
+                `;
+            }
+        }
+
+        // Carregar lista de convidados
+        async function loadGuests() {
+            try {
+                const response = await fetch(`/api/guests/${weddingSlug}`);
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar convidados');
+                }
+
+                allGuests = await response.json();
+                filteredGuests = [...allGuests];
+                
+                updateStatistics();
+                updateGuestsTable();
+                
+            } catch (error) {
+                console.error('Erro ao carregar convidados:', error);
+            }
+        }
+
+        // Atualizar estatísticas
+        function updateStatistics() {
+            const total = allGuests.length;
+            const adults = allGuests.reduce((sum, guest) => sum + guest.adults, 0);
+            const children = allGuests.reduce((sum, guest) => sum + guest.children, 0);
+            const people = adults + children;
+
+            totalConfirmations.textContent = total;
+            totalAdults.textContent = adults;
+            totalChildren.textContent = children;
+            totalPeople.textContent = people;
+        }
+
+        // Atualizar tabela de convidados
+        function updateGuestsTable() {
+            const startIndex = (currentPage - 1) * guestsPerPage;
+            const endIndex = startIndex + guestsPerPage;
+            const pageGuests = filteredGuests.slice(startIndex, endIndex);
+
+            guestsTableBody.innerHTML = '';
+
+            pageGuests.forEach((guest, index) => {
+                const row = document.createElement('tr');
+                row.className = 'table-row border-b border-gray-200 hover:bg-gray-50';
+                
+                const adultsDetails = guest.adults_names && guest.adults_names.length > 0 
+                    ? guest.adults_names.join(', ') 
+                    : `${guest.adults} adulto(s)`;
+                
+                const childrenDetails = guest.children_details && guest.children_details.length > 0 
+                    ? guest.children_details.map(child => `${child.name} (${child.over6 ? '>6' : '<6'})`).join(', ')
+                    : guest.children > 0 ? `${guest.children} criança(s)` : 'Nenhuma';
+
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-sm text-gray-600">${startIndex + index + 1}</td>
+                    <td class="px-4 py-3 font-medium text-gray-800">${guest.name}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600 max-w-xs">
+                        <div class="space-y-1">
+                            <div><strong>Adultos:</strong> ${adultsDetails}</div>
+                            <div><strong>Crianças:</strong> ${childrenDetails}</div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                            ${guest.adults}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                            ${guest.children}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center font-medium text-gray-800">
+                        ${guest.adults + guest.children}
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">****${guest.phone}</td>
+                    <td class="px-4 py-3 text-sm text-gray-600">
+                        ${new Date(guest.created_at).toLocaleString('pt-BR')}
+                    </td>
+                `;
+                
+                guestsTableBody.appendChild(row);
+            });
+
+            updatePagination();
+        }
+
+        // Atualizar paginação
+        function updatePagination() {
+            const total = filteredGuests.length;
+            const totalPages = Math.ceil(total / guestsPerPage);
+            const start = (currentPage - 1) * guestsPerPage + 1;
+            const end = Math.min(currentPage * guestsPerPage, total);
+
+            document.getElementById('showingStart').textContent = total > 0 ? start : 0;
+            document.getElementById('showingEnd').textContent = end;
+            document.getElementById('totalGuests').textContent = total;
+            document.getElementById('currentPage').textContent = currentPage;
+
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+
+            document.getElementById('prevPage').classList.toggle('opacity-50', currentPage === 1);
+            document.getElementById('nextPage').classList.toggle('opacity-50', currentPage === totalPages);
+        }
+
+        // Filtrar convidados
+        function filterGuests() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            if (searchTerm.trim() === '') {
+                filteredGuests = [...allGuests];
+            } else {
+                filteredGuests = allGuests.filter(guest => 
+                    guest.name.toLowerCase().includes(searchTerm) ||
+                    (guest.adults_names && guest.adults_names.some(name => 
+                        name.toLowerCase().includes(searchTerm)
+                    )) ||
+                    (guest.children_details && guest.children_details.some(child => 
+                        child.name.toLowerCase().includes(searchTerm)
+                    ))
+                );
+            }
+            
+            currentPage = 1;
+            updateGuestsTable();
+        }
+
+        // Exportar para CSV
+        function exportToCSV() {
+            if (filteredGuests.length === 0) {
+                alert('Nenhum convidado para exportar');
+                return;
+            }
+
+            const headers = [
+                'ID', 'Responsável', 'Adultos', 'Crianças', 'Total', 'Telefone', 'Data/Hora'
+            ];
+
+            const csvContent = [
+                headers.join(','),
+                ...filteredGuests.map((guest, index) => [
+                    index + 1,
+                    guest.name,
+                    guest.adults,
+                    guest.children,
+                    guest.adults + guest.children,
+                    `****${guest.phone}`,
+                    new Date(guest.created_at).toLocaleString('pt-BR')
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `convidados_${weddingSlug}_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Mostrar modal de compartilhamento
+        function showShareModal() {
+            const shareUrl = `${window.location.origin}/share/${weddingSlug}`;
+            shareLink.value = shareUrl;
+            shareModal.classList.remove('hidden');
+        }
+
+        // Fechar modal de compartilhamento
+        function closeShareModal() {
+            shareModal.classList.add('hidden');
+        }
+
+        // Copiar link
+        async function copyLink() {
+            try {
+                await navigator.clipboard.writeText(shareLink.value);
+                copyLinkBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copiado!';
+                copyLinkBtn.classList.add('copy-success');
+                
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = '<i class="fas fa-copy mr-2"></i>Copiar';
+                    copyLinkBtn.classList.remove('copy-success');
+                }, 2000);
+            } catch (error) {
+                console.error('Erro ao copiar:', error);
+                // Fallback para navegadores mais antigos
+                shareLink.select();
+                document.execCommand('copy');
+                copyLinkBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Copiado!';
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = '<i class="fas fa-copy mr-2"></i>Copiar';
+                }, 2000);
+            }
+        }
+
+        // Compartilhar no WhatsApp
+        function shareWhatsApp() {
+            const text = `Dashboard das confirmações do nosso casamento: ${shareLink.value}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(url, '_blank');
+        }
+
+        // Compartilhar por email
+        function shareEmail() {
+            const subject = 'Dashboard das Confirmações - Nosso Casamento';
+            const body = `Olá!\n\nAqui está o link para acompanhar as confirmações do nosso casamento:\n\n${shareLink.value}\n\nAtenciosamente,\n${currentWedding.bride_name} & ${currentWedding.groom_name}`;
+            const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.open(url);
+        }
+
+        // Event Listeners
+        searchInput.addEventListener('input', filterGuests);
+        refreshBtn.addEventListener('click', loadGuests);
+        exportBtn.addEventListener('click', exportToCSV);
+        shareBtn.addEventListener('click', showShareModal);
+        closeShareModalBtn.addEventListener('click', closeShareModal);
+        copyLinkBtn.addEventListener('click', copyLink);
+        whatsappShare.addEventListener('click', shareWhatsApp);
+        emailShare.addEventListener('click', shareEmail);
+
+        // Paginação
+        document.getElementById('prevPage').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                updateGuestsTable();
+            }
+        });
+
+        document.getElementById('nextPage').addEventListener('click', () => {
+            const totalPages = Math.ceil(filteredGuests.length / guestsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                updateGuestsTable();
+            }
+        });
+
+        // Fechar modal ao clicar fora
+        shareModal.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                closeShareModal();
+            }
+        });
+
+        // Carregar dados quando a página carregar
+        document.addEventListener('DOMContentLoaded', loadWeddingInfo);
+    </script>
+</body>
+</html>

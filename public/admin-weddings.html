@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Casamentos - Painel da Assessoria</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 50%, #a0295e 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .btn-marsala {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 100%);
+        }
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #333;
+        }
+        .text-marsala { color: #9c2851; }
+        .text-gold { color: #d4af37; }
+        .border-marsala { border-color: #9c2851; }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="bg-white rounded-full p-3">
+                        <i class="fas fa-heart text-2xl text-marsala"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-white">Gerenciar Casamentos</h1>
+                        <p class="text-pink-100">Painel da Assessoria - Múltiplas Listas RSVP</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button 
+                        id="addWeddingBtn"
+                        class="btn-gold text-black px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover font-semibold"
+                    >
+                        <i class="fas fa-plus mr-2"></i>Nova Lista
+                    </button>
+                    
+                    <button 
+                        id="logoutBtn"
+                        class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-all duration-300 btn-hover"
+                        title="Sair"
+                    >
+                        <i class="fas fa-sign-out-alt mr-2"></i>Sair
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Loading State -->
+        <div id="loading" class="text-center py-12">
+            <i class="fas fa-spinner fa-spin text-4xl text-marsala mb-4"></i>
+            <p class="text-gray-600">Carregando listas de casamentos...</p>
+        </div>
+
+        <!-- Wedding Lists -->
+        <div id="weddingLists" class="hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="weddingGrid">
+                <!-- Cards de casamentos serão inseridos aqui -->
+            </div>
+
+            <!-- Estado vazio -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <i class="fas fa-heart text-6xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-600 mb-2">Nenhuma lista criada ainda</h3>
+                <p class="text-gray-500 mb-6">Crie sua primeira lista de casamento para começar</p>
+                <button onclick="openAddModal()" class="btn-marsala text-white px-6 py-3 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover">
+                    <i class="fas fa-plus mr-2"></i>Criar primeira lista
+                </button>
+            </div>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-xl p-6 text-center">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-xl font-semibold text-red-800 mb-2">Erro ao carregar dados</h3>
+            <p id="error-text" class="text-red-600 mb-4"></p>
+            <button 
+                onclick="loadWeddings()"
+                class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors"
+            >
+                Tentar novamente
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal Adicionar/Editar Casamento -->
+    <div id="weddingModal" class="fixed inset-0 bg-black bg-opacity-50 hidden modal z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-screen overflow-y-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 id="modalTitle" class="text-2xl font-bold text-marsala">Nova Lista de Casamento</h2>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
+
+                <form id="weddingForm" class="space-y-6">
+                    <input type="hidden" id="weddingId" name="id">
+                    
+                    <!-- Nomes dos Noivos -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="brideName" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-female mr-2 text-marsala"></i>Nome da Noiva
+                            </label>
+                            <input 
+                                type="text" 
+                                id="brideName" 
+                                name="bride_name" 
+                                required
+                                placeholder="Nome da noiva"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="groomName" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-male mr-2 text-marsala"></i>Nome do Noivo
+                            </label>
+                            <input 
+                                type="text" 
+                                id="groomName" 
+                                name="groom_name" 
+                                required
+                                placeholder="Nome do noivo"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Data e Hora -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="weddingDate" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-calendar mr-2 text-marsala"></i>Data do Casamento
+                            </label>
+                            <input 
+                                type="date" 
+                                id="weddingDate" 
+                                name="wedding_date" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            >
+                        </div>
+                        
+                        <div>
+                            <label for="weddingTime" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-clock mr-2 text-marsala"></i>Horário
+                            </label>
+                            <input 
+                                type="time" 
+                                id="weddingTime" 
+                                name="wedding_time" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Local -->
+                    <div>
+                        <label for="venueName" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-marsala"></i>Nome do Local
+                        </label>
+                        <input 
+                            type="text" 
+                            id="venueName" 
+                            name="venue_name" 
+                            placeholder="Ex: Chácara Amor Eterno"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        >
+                    </div>
+
+                    <div>
+                        <label for="venueAddress" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map mr-2 text-marsala"></i>Endereço Completo
+                        </label>
+                        <textarea 
+                            id="venueAddress" 
+                            name="venue_address" 
+                            rows="3"
+                            placeholder="Endereço completo do local da cerimônia"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        ></textarea>
+                    </div>
+
+                    <!-- Informações Adicionais -->
+                    <div>
+                        <label for="additionalInfo" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-info-circle mr-2 text-marsala"></i>Informações Adicionais
+                        </label>
+                        <textarea 
+                            id="additionalInfo" 
+                            name="additional_info" 
+                            rows="3"
+                            placeholder="Dress code, observações especiais, etc."
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                        ></textarea>
+                    </div>
+
+                    <!-- Upload de Imagem de Cabeçalho -->
+                    <div>
+                        <label for="headerImage" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-image mr-2 text-marsala"></i>Imagem de Cabeçalho (Opcional)
+                        </label>
+                        <div class="flex items-center space-x-4">
+                            <input 
+                                type="file" 
+                                id="headerImage" 
+                                name="header_image" 
+                                accept="image/*"
+                                class="hidden"
+                                onchange="previewImage(this)"
+                            >
+                            <label 
+                                for="headerImage" 
+                                class="cursor-pointer flex items-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            >
+                                <i class="fas fa-upload mr-2 text-gray-500"></i>
+                                <span>Escolher Imagem</span>
+                            </label>
+                            <button 
+                                type="button" 
+                                id="removeImageBtn"
+                                onclick="removeImage()"
+                                class="hidden px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
+                            >
+                                <i class="fas fa-trash mr-1"></i>Remover
+                            </button>
+                        </div>
+                        <div id="imagePreview" class="hidden mt-3">
+                            <img id="previewImg" src="" alt="Preview" class="max-w-xs h-32 object-contain rounded-lg border">
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 5MB</p>
+                    </div>
+
+                    <!-- Texto do Cabeçalho -->
+                    <div>
+                        <label for="headerText" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-font mr-2 text-marsala"></i>Texto do Cabeçalho (Opcional)
+                        </label>
+                        <div class="border border-gray-300 rounded-lg overflow-hidden">
+                            <!-- Barra de ferramentas de formatação -->
+                            <div class="bg-gray-50 px-3 py-2 border-b border-gray-300 flex items-center space-x-2">
+                                <button type="button" onclick="formatText('bold')" class="p-2 hover:bg-gray-200 rounded" title="Negrito">
+                                    <i class="fas fa-bold"></i>
+                                </button>
+                                <button type="button" onclick="formatText('italic')" class="p-2 hover:bg-gray-200 rounded" title="Itálico">
+                                    <i class="fas fa-italic"></i>
+                                </button>
+                                <button type="button" onclick="formatText('underline')" class="p-2 hover:bg-gray-200 rounded" title="Sublinhado">
+                                    <i class="fas fa-underline"></i>
+                                </button>
+                                <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                                <button type="button" onclick="formatText('justifyLeft')" class="p-2 hover:bg-gray-200 rounded" title="Alinhar à esquerda">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                                <button type="button" onclick="formatText('justifyCenter')" class="p-2 hover:bg-gray-200 rounded" title="Centralizar">
+                                    <i class="fas fa-align-center"></i>
+                                </button>
+                                <button type="button" onclick="formatText('justifyRight')" class="p-2 hover:bg-gray-200 rounded" title="Alinhar à direita">
+                                    <i class="fas fa-align-right"></i>
+                                </button>
+                                <div class="w-px h-6 bg-gray-300 mx-2"></div>
+                                <button type="button" onclick="formatText('insertUnorderedList')" class="p-2 hover:bg-gray-200 rounded" title="Lista com marcadores">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" onclick="formatText('insertOrderedList')" class="p-2 hover:bg-gray-200 rounded" title="Lista numerada">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                            </div>
+                            <!-- Editor de texto -->
+                            <div 
+                                id="headerText" 
+                                name="header_text" 
+                                contenteditable="true"
+                                class="w-full px-4 py-3 min-h-32 max-h-48 overflow-y-auto focus:outline-none focus:ring-2 focus:ring-pink-500"
+                                placeholder="Digite o texto do cabeçalho aqui... Use as ferramentas acima para formatar."
+                                oninput="updateHiddenField()"
+                            ></div>
+                        </div>
+                        <input type="hidden" id="headerTextHidden" name="header_text">
+                        <p class="text-xs text-gray-500 mt-1">Use as ferramentas acima para formatar o texto. HTML é permitido.</p>
+                    </div>
+
+                    <!-- Personalização de Cores -->
+                    <div class="border-t pt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                            <i class="fas fa-palette mr-2 text-marsala"></i>Personalização de Cores
+                        </h3>
+                        
+                        <!-- Esquemas Predefinidos -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Esquemas de Cores</label>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="color_scheme" value="marsala" checked class="sr-only">
+                                    <div class="color-scheme-option border-2 border-gray-300 rounded-lg p-3 text-center hover:border-pink-500 transition-colors" data-scheme="marsala">
+                                        <div class="flex space-x-1 mb-2 justify-center">
+                                            <div class="w-4 h-4 rounded" style="background-color: #9c2851;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #d4af37;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #ffffff;"></div>
+                                        </div>
+                                        <span class="text-xs font-medium">Marsala</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="color_scheme" value="blue" class="sr-only">
+                                    <div class="color-scheme-option border-2 border-gray-300 rounded-lg p-3 text-center hover:border-blue-500 transition-colors" data-scheme="blue">
+                                        <div class="flex space-x-1 mb-2 justify-center">
+                                            <div class="w-4 h-4 rounded" style="background-color: #1e40af;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #fbbf24;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #ffffff;"></div>
+                                        </div>
+                                        <span class="text-xs font-medium">Azul Real</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="color_scheme" value="emerald" class="sr-only">
+                                    <div class="color-scheme-option border-2 border-gray-300 rounded-lg p-3 text-center hover:border-emerald-500 transition-colors" data-scheme="emerald">
+                                        <div class="flex space-x-1 mb-2 justify-center">
+                                            <div class="w-4 h-4 rounded" style="background-color: #059669;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #f59e0b;"></div>
+                                            <div class="w-4 h-4 rounded" style="background-color: #ffffff;"></div>
+                                        </div>
+                                        <span class="text-xs font-medium">Esmeralda</span>
+                                    </div>
+                                </label>
+                                
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="color_scheme" value="custom" class="sr-only">
+                                    <div class="color-scheme-option border-2 border-gray-300 rounded-lg p-3 text-center hover:border-purple-500 transition-colors" data-scheme="custom">
+                                        <div class="flex space-x-1 mb-2 justify-center">
+                                            <div class="w-4 h-4 rounded border" style="background: linear-gradient(45deg, #ff0000, #00ff00, #0000ff);"></div>
+                                        </div>
+                                        <span class="text-xs font-medium">Personalizado</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Cores Personalizadas -->
+                        <div id="customColors" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label for="backgroundColor" class="block text-sm font-medium text-gray-700 mb-2">Cor de Fundo</label>
+                                <div class="flex items-center space-x-2">
+                                    <input 
+                                        type="color" 
+                                        id="backgroundColor"
+                                        name="background_color"
+                                        value="#9c2851"
+                                        class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                                        onchange="updateColorPreview()"
+                                    >
+                                    <input 
+                                        type="text" 
+                                        id="backgroundColorText"
+                                        name="background_color"
+                                        value="#9c2851"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                                        onchange="syncColorFields()"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="textColor" class="block text-sm font-medium text-gray-700 mb-2">Cor do Texto</label>
+                                <div class="flex items-center space-x-2">
+                                    <input 
+                                        type="color" 
+                                        id="textColor"
+                                        name="text_color"
+                                        value="#ffffff"
+                                        class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                                        onchange="updateColorPreview()"
+                                    >
+                                    <input 
+                                        type="text" 
+                                        id="textColorText"
+                                        name="text_color"
+                                        value="#ffffff"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                                        onchange="syncColorFields()"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="accentColor" class="block text-sm font-medium text-gray-700 mb-2">Cor de Destaque</label>
+                                <div class="flex items-center space-x-2">
+                                    <input 
+                                        type="color" 
+                                        id="accentColor"
+                                        name="accent_color"
+                                        value="#d4af37"
+                                        class="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                                        onchange="updateColorPreview()"
+                                    >
+                                    <input 
+                                        type="text" 
+                                        id="accentColorText"
+                                        name="accent_color"
+                                        value="#d4af37"
+                                        class="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
+                                        onchange="syncColorFields()"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preview das Cores -->
+                        <div class="mt-4 p-4 rounded-lg border" id="colorPreview" style="background-color: #9c2851; color: #ffffff;">
+                            <h4 class="font-semibold mb-2">Preview das Cores</h4>
+                            <p class="text-sm">Este é um exemplo de como ficará a página com as cores selecionadas.</p>
+                            <div class="mt-2 inline-block px-3 py-1 rounded text-sm font-medium" id="accentPreview" style="background-color: #d4af37; color: #333;">
+                                Cor de Destaque
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botões -->
+                    <div class="flex space-x-4 pt-4">
+                        <button 
+                            type="submit" 
+                            id="saveBtn"
+                            class="flex-1 btn-marsala text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 btn-hover"
+                        >
+                            <span id="saveText">
+                                <i class="fas fa-save mr-2"></i>Salvar Lista
+                            </span>
+                            <span id="savingText" class="hidden">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Salvando...
+                            </span>
+                        </button>
+                        
+                        <button 
+                            type="button" 
+                            onclick="closeModal()"
+                            class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Sucesso/Erro -->
+    <div id="toast" class="fixed top-4 right-4 transform translate-x-full transition-transform duration-300 z-50">
+        <div class="bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-lg">
+            <div class="flex items-center">
+                <i id="toastIcon" class="fas fa-check-circle text-green-500 mr-3"></i>
+                <p id="toastMessage" class="text-gray-800"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWeddings = [];
+
+        // Elementos do DOM
+        const loading = document.getElementById('loading');
+        const weddingLists = document.getElementById('weddingLists');
+        const weddingGrid = document.getElementById('weddingGrid');
+        const emptyState = document.getElementById('emptyState');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const weddingModal = document.getElementById('weddingModal');
+        const weddingForm = document.getElementById('weddingForm');
+        const addWeddingBtn = document.getElementById('addWeddingBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // Função para mostrar toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-green-500 mr-3';
+                toast.querySelector('div').className = 'bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-lg';
+            } else {
+                toastIcon.className = 'fas fa-exclamation-circle text-red-500 mr-3';
+                toast.querySelector('div').className = 'bg-white border-l-4 border-red-500 p-4 rounded-lg shadow-lg';
+            }
+            
+            toast.classList.remove('translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 4000);
+        }
+
+        // Função para gerar slug
+        function generateSlug(brideName, groomName, weddingDate = '') {
+            const combined = `${brideName.trim()}-${groomName.trim()}`;
+            const baseSlug = combined
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+                .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+                .replace(/\s+/g, '-') // Substitui espaços por hífens
+                .replace(/-+/g, '-') // Remove hífens duplicados
+                .trim('-');
+            
+            // Adicionar data se disponível
+            let finalSlug = baseSlug;
+            if (weddingDate) {
+                const dateStr = weddingDate.replace(/-/g, '');
+                finalSlug = `${baseSlug}-${dateStr}`;
+            }
+            
+            // Adicionar timestamp para garantir unicidade
+            const timestamp = Date.now();
+            finalSlug = `${finalSlug}-${timestamp}`;
+            
+            return finalSlug;
+        }
+
+        // Função para copiar link
+        function copyShareLink(slug) {
+            const link = `${window.location.origin}/rsvp/${slug}`;
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('Link copiado para a área de transferência!');
+            }).catch(() => {
+                // Fallback para navegadores mais antigos
+                const textarea = document.createElement('textarea');
+                textarea.value = link;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast('Link copiado para a área de transferência!');
+            });
+        }
+
+        // Função para renderizar cards de casamentos
+        function renderWeddingCards(weddings) {
+            if (weddings.length === 0) {
+                weddingGrid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            
+            console.log('Renderizando cards com casamentos:', weddings.map(w => ({
+                id: w.id,
+                names: `${w.bride_name} & ${w.groom_name}`,
+                colors: {
+                    background: w.background_color,
+                    text: w.text_color,
+                    accent: w.accent_color
+                }
+            })));
+            
+            weddingGrid.innerHTML = weddings.map(wedding => `
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden fade-in hover:shadow-xl transition-all duration-300">
+                    ${wedding.header_image ? `
+                        <div class="h-48 relative overflow-hidden">
+                            <img src="${wedding.header_image}" alt="Cabeçalho do casamento" class="w-full h-full object-contain">
+                            <div class="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                                <div class="p-4 text-white w-full">
+                                    <h3 class="text-xl font-bold mb-1">${wedding.bride_name} & ${wedding.groom_name}</h3>
+                                    <p class="text-pink-100 text-sm">
+                                        <i class="fas fa-calendar mr-1"></i>
+                                        ${wedding.wedding_date ? new Date(wedding.wedding_date).toLocaleDateString('pt-BR') : 'Data não definida'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="p-6 text-white" style="background: linear-gradient(135deg, ${wedding.background_color || '#9c2851'} 0%, ${wedding.accent_color || '#d4af37'} 100%)">
+                            <h3 class="text-xl font-bold mb-2">${wedding.bride_name} & ${wedding.groom_name}</h3>
+                            <p class="text-pink-100">
+                                <i class="fas fa-calendar mr-2"></i>
+                                ${wedding.wedding_date ? new Date(wedding.wedding_date).toLocaleDateString('pt-BR') : 'Data não definida'}
+                            </p>
+                            ${wedding.wedding_time ? `<p class="text-pink-100"><i class="fas fa-clock mr-2"></i>${wedding.wedding_time}</p>` : ''}
+                        </div>
+                    `}
+                    
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                ${wedding.venue_name ? `<p class="text-gray-600 mb-1"><i class="fas fa-map-marker-alt mr-2 text-marsala"></i>${wedding.venue_name}</p>` : ''}
+                                ${wedding.wedding_time ? `<p class="text-sm text-gray-500"><i class="fas fa-clock mr-1"></i>${wedding.wedding_time}</p>` : ''}
+                            </div>
+                            <div class="flex items-center space-x-2 text-xs text-gray-400">
+                                ${wedding.header_image ? `<span class="flex items-center"><i class="fas fa-image mr-1 text-green-500"></i>Imagem</span>` : `<span class="flex items-center"><i class="fas fa-image mr-1 text-gray-300"></i>Sem imagem</span>`}
+                            </div>
+                        </div>
+                        ${wedding.venue_address ? `<p class="text-sm text-gray-500 mb-4">${wedding.venue_address}</p>` : ''}
+                        
+                        <div class="flex space-x-2">
+                            <button 
+                                onclick="viewWeddingDetails('${wedding.slug}')"
+                                class="flex-1 btn-marsala text-white py-2 px-4 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover text-sm"
+                            >
+                                <i class="fas fa-eye mr-2"></i>Ver Lista
+                            </button>
+                            
+                            <button 
+                                onclick="copyShareLink('${wedding.slug}')"
+                                class="btn-gold text-black py-2 px-4 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover text-sm"
+                                title="Copiar link de compartilhamento"
+                            >
+                                <i class="fas fa-share-alt"></i>
+                            </button>
+                            
+                            <button 
+                                onclick="editWedding(${wedding.id})"
+                                class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all duration-300 btn-hover text-sm"
+                                title="Editar"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            
+                            <button 
+                                onclick="deleteWedding(${wedding.id}, '${wedding.bride_name} & ${wedding.groom_name}')"
+                                class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all duration-300 btn-hover text-sm"
+                                title="Excluir Lista"
+                            >
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Funções do modal
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Nova Lista de Casamento';
+            document.getElementById('weddingId').value = '';
+            document.getElementById('weddingForm').reset();
+            
+            // Resetar campos de personalização
+            document.querySelector('input[name="color_scheme"][value="marsala"]').checked = true;
+            document.getElementById('customColors').classList.add('hidden');
+            
+            // Resetar cores padrão
+            document.getElementById('backgroundColor').value = '#9c2851';
+            document.getElementById('backgroundColorText').value = '#9c2851';
+            document.getElementById('textColor').value = '#ffffff';
+            document.getElementById('textColorText').value = '#ffffff';
+            document.getElementById('accentColor').value = '#d4af37';
+            document.getElementById('accentColorText').value = '#d4af37';
+            
+            // Atualizar preview
+            updateColorPreview();
+            
+            console.log('Cores padrão aplicadas');
+            
+            // Limpar preview de imagem
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('removeImageBtn').classList.add('hidden');
+            document.getElementById('headerImage').value = '';
+            
+            // Limpar editor de texto
+            const headerTextEditor = document.getElementById('headerText');
+            const headerTextHidden = document.getElementById('headerTextHidden');
+            if (headerTextEditor && headerTextHidden) {
+                headerTextEditor.innerHTML = '';
+                headerTextHidden.value = '';
+            }
+            
+            // Resetar visual dos esquemas de cores
+            document.querySelectorAll('.color-scheme-option').forEach(option => {
+                option.classList.remove('border-pink-500', 'border-blue-500', 'border-emerald-500', 'border-purple-500');
+                option.classList.add('border-gray-300');
+            });
+            
+            // Destacar esquema marsala
+            const marsalaOption = document.querySelector('[data-scheme="marsala"]');
+            if (marsalaOption) {
+                marsalaOption.classList.remove('border-gray-300');
+                marsalaOption.classList.add('border-pink-500');
+            }
+            
+            weddingModal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            weddingModal.classList.add('hidden');
+        }
+
+        function editWedding(id) {
+            console.log('editWedding chamado com ID:', id);
+            const wedding = currentWeddings.find(w => w.id === id);
+            console.log('Wedding encontrado:', wedding);
+            if (!wedding) {
+                console.error('Wedding não encontrado para ID:', id);
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = 'Editar Lista de Casamento';
+            console.log('Preenchendo campos básicos...');
+            document.getElementById('weddingId').value = wedding.id;
+            document.getElementById('brideName').value = wedding.bride_name;
+            document.getElementById('groomName').value = wedding.groom_name;
+            document.getElementById('weddingDate').value = wedding.wedding_date || '';
+            document.getElementById('weddingTime').value = wedding.wedding_time || '';
+            document.getElementById('venueName').value = wedding.venue_name || '';
+            document.getElementById('venueAddress').value = wedding.venue_address || '';
+            document.getElementById('additionalInfo').value = wedding.additional_info || '';
+            console.log('Campos básicos preenchidos');
+            
+            // Preencher campos de personalização
+            console.log('Preenchendo campos de personalização...', {
+                color_scheme: wedding.color_scheme,
+                background_color: wedding.background_color,
+                text_color: wedding.text_color,
+                accent_color: wedding.accent_color,
+                header_image: wedding.header_image
+            });
+            
+            if (wedding.color_scheme) {
+                // Selecionar esquema de cores
+                const colorSchemeRadio = document.querySelector(`input[name="color_scheme"][value="${wedding.color_scheme}"]`);
+                console.log('Color scheme radio encontrado:', colorSchemeRadio);
+                if (colorSchemeRadio) {
+                    colorSchemeRadio.checked = true;
+                    
+                    // Aguardar um pouco antes de disparar o evento change
+                    setTimeout(() => {
+                        // Disparar evento change para atualizar interface
+                        colorSchemeRadio.dispatchEvent(new Event('change'));
+                        console.log('Evento change disparado para color scheme após delay');
+                    }, 50);
+                }
+            } else {
+                console.log('Nenhum color_scheme definido para este casamento');
+            }
+            
+            // Preencher cores personalizadas
+            if (wedding.background_color) {
+                document.getElementById('backgroundColor').value = wedding.background_color;
+                document.getElementById('backgroundColorText').value = wedding.background_color;
+                console.log('Background color aplicado:', wedding.background_color);
+            }
+            if (wedding.text_color) {
+                document.getElementById('textColor').value = wedding.text_color;
+                document.getElementById('textColorText').value = wedding.text_color;
+                console.log('Text color aplicado:', wedding.text_color);
+            }
+            if (wedding.accent_color) {
+                document.getElementById('accentColor').value = wedding.accent_color;
+                document.getElementById('accentColorText').value = wedding.accent_color;
+                console.log('Accent color aplicado:', wedding.accent_color);
+            }
+            
+            // Aguardar um pouco antes de atualizar o preview para garantir que os campos foram preenchidos
+            setTimeout(() => {
+                console.log('Chamando updateColorPreview após delay...');
+                updateColorPreview();
+            }, 100);
+            
+            console.log('Cores carregadas:', {
+                background: wedding.background_color,
+                text: wedding.text_color,
+                accent: wedding.accent_color
+            });
+            
+            // Mostrar imagem atual se existir
+            if (wedding.header_image) {
+                const previewImg = document.getElementById('previewImg');
+                const imagePreview = document.getElementById('imagePreview');
+                const removeBtn = document.getElementById('removeImageBtn');
+                
+                previewImg.src = wedding.header_image;
+                imagePreview.classList.remove('hidden');
+                removeBtn.classList.remove('hidden');
+            } else {
+                // Limpar preview se não há imagem
+                document.getElementById('imagePreview').classList.add('hidden');
+                document.getElementById('removeImageBtn').classList.add('hidden');
+                document.getElementById('headerImage').value = '';
+            }
+            
+            // Preencher texto do cabeçalho se existir
+            if (wedding.header_text) {
+                const headerTextEditor = document.getElementById('headerText');
+                const headerTextHidden = document.getElementById('headerTextHidden');
+                if (headerTextEditor && headerTextHidden) {
+                    headerTextEditor.innerHTML = wedding.header_text;
+                    headerTextHidden.value = wedding.header_text;
+                }
+            } else {
+                // Limpar editor se não há texto
+                const headerTextEditor = document.getElementById('headerText');
+                const headerTextHidden = document.getElementById('headerTextHidden');
+                if (headerTextEditor && headerTextHidden) {
+                    headerTextEditor.innerHTML = '';
+                    headerTextHidden.value = '';
+                }
+            }
+            
+            console.log('Abrindo modal...');
+            weddingModal.classList.remove('hidden');
+            
+            // Garantir que o modal seja visível
+            setTimeout(() => {
+                console.log('Modal aberto. Verificando campos...');
+                console.log('Nome da noiva:', document.getElementById('brideName').value);
+                console.log('Nome do noivo:', document.getElementById('groomName').value);
+                console.log('Data:', document.getElementById('weddingDate').value);
+                console.log('Horário:', document.getElementById('weddingTime').value);
+            }, 100);
+        }
+
+        function viewWeddingDetails(slug) {
+            window.location.href = `/admin/wedding/${slug}`;
+        }
+
+        // Função para carregar casamentos
+        async function loadWeddings() {
+            try {
+                loading.classList.remove('hidden');
+                weddingLists.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+
+                const response = await fetch('/api/admin/weddings');
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar casamentos');
+                }
+
+                const weddings = await response.json();
+                currentWeddings = weddings;
+
+                renderWeddingCards(weddings);
+
+                loading.classList.add('hidden');
+                weddingLists.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Erro ao carregar casamentos:', error);
+                loading.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+                errorText.textContent = 'Erro ao carregar listas de casamentos. Tente novamente.';
+            }
+        }
+
+        // Função para preview da imagem
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                    document.getElementById('removeImageBtn').classList.remove('hidden');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Função para remover imagem
+        function removeImage() {
+            document.getElementById('headerImage').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('removeImageBtn').classList.add('hidden');
+        }
+
+        // Função para atualizar color picker
+        function updateColorPicker(colorInputId, hexValue) {
+            if (hexValue.match(/^#[0-9A-F]{6}$/i)) {
+                document.getElementById(colorInputId).value = hexValue;
+                updateColorPreview();
+            }
+        }
+
+        // Esquemas de cores predefinidos
+        const colorSchemes = {
+            marsala: {
+                background_color: '#9c2851',
+                text_color: '#ffffff',
+                accent_color: '#d4af37'
+            },
+            blue: {
+                background_color: '#1e40af',
+                text_color: '#ffffff',
+                accent_color: '#fbbf24'
+            },
+            emerald: {
+                background_color: '#059669',
+                text_color: '#ffffff',
+                accent_color: '#f59e0b'
+            }
+        };
+
+        // Função para aplicar esquema de cores
+        function applyColorScheme(scheme) {
+            console.log('applyColorScheme chamado com:', scheme);
+            console.log('Esquemas disponíveis:', Object.keys(colorSchemes));
+            
+            if (colorSchemes[scheme]) {
+                const colors = colorSchemes[scheme];
+                console.log('Cores do esquema encontradas:', colors);
+                
+                // Atualizar campos de cor
+                document.getElementById('backgroundColor').value = colors.background_color;
+                document.getElementById('textColor').value = colors.text_color;
+                document.getElementById('accentColor').value = colors.accent_color;
+                
+                // Atualizar campos de texto
+                document.getElementById('backgroundColorText').value = colors.background_color;
+                document.getElementById('textColorText').value = colors.text_color;
+                document.getElementById('accentColorText').value = colors.accent_color;
+                
+                console.log('Campos de cor atualizados');
+                
+                // Atualizar preview
+                console.log('Chamando updateColorPreview de applyColorScheme...');
+                updateColorPreview();
+                
+                console.log('Esquema de cores aplicado:', scheme, colors);
+            } else {
+                console.error('Esquema de cores não encontrado:', scheme);
+            }
+        }
+
+        // Função para atualizar preview das cores
+        function updateColorPreview() {
+            const bgColor = document.getElementById('backgroundColor').value;
+            const textColor = document.getElementById('textColor').value;
+            const accentColor = document.getElementById('accentColor').value;
+            
+            console.log('updateColorPreview - Cores recebidas:', { bgColor, textColor, accentColor });
+            
+            const preview = document.getElementById('colorPreview');
+            const accentPreview = document.getElementById('accentPreview');
+            
+            console.log('Elementos de preview encontrados:', { preview: !!preview, accentPreview: !!accentPreview });
+            
+            if (preview) {
+                preview.style.backgroundColor = bgColor;
+                preview.style.color = textColor;
+                console.log('Preview atualizado com:', { bgColor, textColor });
+            }
+            
+            if (accentPreview) {
+                accentPreview.style.backgroundColor = accentColor;
+                accentPreview.style.color = accentColor === '#ffffff' ? '#333' : '#fff';
+                console.log('Accent preview atualizado com:', { accentColor });
+            }
+
+            // Sincronizar campos de texto com campos de cor
+            document.getElementById('backgroundColorText').value = bgColor;
+            document.getElementById('textColorText').value = textColor;
+            document.getElementById('accentColorText').value = accentColor;
+            
+            console.log('updateColorPreview concluído');
+        }
+
+        // Função para sincronizar campos de cor com campos de texto
+        function syncColorFields() {
+            const bgColorText = document.getElementById('backgroundColorText').value;
+            const textColorText = document.getElementById('textColorText').value;
+            const accentColorText = document.getElementById('accentColorText').value;
+            
+            // Atualizar campos de cor se os campos de texto foram alterados
+            if (bgColorText && bgColorText.match(/^#[0-9A-F]{6}$/i)) {
+                document.getElementById('backgroundColor').value = bgColorText;
+            }
+            if (textColorText && textColorText.match(/^#[0-9A-F]{6}$/i)) {
+                document.getElementById('textColor').value = textColorText;
+            }
+            if (accentColorText && accentColorText.match(/^#[0-9A-F]{6}$/i)) {
+                document.getElementById('accentColor').value = accentColorText;
+            }
+            
+            // Atualizar preview
+            updateColorPreview();
+        }
+
+        // Função para deletar casamento
+        async function deleteWedding(id, coupleName) {
+            // Confirmar exclusão
+            const confirmed = confirm(`Tem certeza que deseja excluir a lista de "${coupleName}"?\n\nEsta ação não pode ser desfeita e todos os dados dos convidados também serão removidos.`);
+            
+            if (!confirmed) return;
+            
+            try {
+                console.log('Excluindo casamento ID:', id);
+                
+                const response = await fetch(`/api/admin/weddings/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error || 'Erro ao excluir lista');
+                }
+                
+                const result = await response.json();
+                console.log('Lista excluída com sucesso:', result);
+                
+                // Mostrar toast de sucesso
+                showToast('Lista excluída com sucesso!', 'success');
+                
+                // Recarregar lista de casamentos
+                await loadWeddings();
+                
+            } catch (error) {
+                console.error('Erro ao excluir casamento:', error);
+                showToast(error.message || 'Erro ao excluir lista', 'error');
+            }
+        }
+
+        // Funções do editor de texto
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            updateHiddenField();
+        }
+
+        function updateHiddenField() {
+            const editor = document.getElementById('headerText');
+            const hiddenField = document.getElementById('headerTextHidden');
+            if (editor && hiddenField) {
+                hiddenField.value = editor.innerHTML;
+            }
+        }
+
+        // Função para mostrar toast
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            // Configurar ícone e cores baseado no tipo
+            if (type === 'success') {
+                toastIcon.className = 'fas fa-check-circle text-green-500 mr-3';
+                toast.querySelector('.bg-white').className = 'bg-white border-l-4 border-green-500 p-4 rounded-lg shadow-lg';
+            } else {
+                toastIcon.className = 'fas fa-exclamation-triangle text-red-500 mr-3';
+                toast.querySelector('.bg-white').className = 'bg-white border-l-4 border-red-500 p-4 rounded-lg shadow-lg';
+            }
+            
+            toastMessage.textContent = message;
+            
+            // Mostrar toast
+            toast.classList.remove('translate-x-full');
+            
+            // Esconder após 3 segundos
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+            }, 3000);
+        }
+
+        // Função para salvar casamento
+        async function saveWedding(formData) {
+            const weddingId = formData.get('id');
+            const isEdit = !!weddingId;
+            
+            // Usar FormData para suportar upload de arquivo
+            const weddingFormData = new FormData();
+            
+            // Adicionar dados básicos
+            weddingFormData.append('bride_name', formData.get('bride_name'));
+            weddingFormData.append('groom_name', formData.get('groom_name'));
+            weddingFormData.append('wedding_date', formData.get('wedding_date') || '');
+            weddingFormData.append('wedding_time', formData.get('wedding_time') || '');
+            weddingFormData.append('venue_name', formData.get('venue_name') || '');
+            weddingFormData.append('venue_address', formData.get('venue_address') || '');
+            weddingFormData.append('additional_info', formData.get('additional_info') || '');
+            weddingFormData.append('header_text', formData.get('header_text') || '');
+            
+            // Adicionar dados de personalização
+            weddingFormData.append('color_scheme', formData.get('color_scheme'));
+            weddingFormData.append('background_color', formData.get('background_color'));
+            weddingFormData.append('text_color', formData.get('text_color'));
+            weddingFormData.append('accent_color', formData.get('accent_color'));
+            
+            console.log('Dados de cores sendo enviados:', {
+                color_scheme: formData.get('color_scheme'),
+                background_color: formData.get('background_color'),
+                text_color: formData.get('text_color'),
+                accent_color: formData.get('accent_color')
+            });
+            
+            // Adicionar imagem se selecionada
+            const imageFile = formData.get('header_image');
+            if (imageFile && imageFile.size > 0) {
+                weddingFormData.append('header_image', imageFile);
+            }
+
+            if (!isEdit) {
+                const brideName = formData.get('bride_name');
+                const groomName = formData.get('groom_name');
+                const weddingDate = formData.get('wedding_date');
+                weddingFormData.append('slug', generateSlug(brideName, groomName, weddingDate));
+            }
+
+            const url = isEdit ? `/api/admin/weddings/${weddingId}` : '/api/admin/weddings';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                body: weddingFormData // Não definir Content-Type para FormData
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro ao salvar casamento');
+            }
+
+            return await response.json();
+        }
+
+        // Event Listeners
+        addWeddingBtn.addEventListener('click', openAddModal);
+
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/admin/logout', { method: 'POST' });
+                if (response.ok) {
+                    window.location.href = '/admin';
+                }
+            } catch (error) {
+                console.error('Erro no logout:', error);
+            }
+        });
+
+        weddingForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const saveBtn = document.getElementById('saveBtn');
+            const saveText = document.getElementById('saveText');
+            const savingText = document.getElementById('savingText');
+            
+            try {
+                saveBtn.disabled = true;
+                saveText.classList.add('hidden');
+                savingText.classList.remove('hidden');
+
+                const formData = new FormData(weddingForm);
+                await saveWedding(formData);
+
+                showToast('Lista salva com sucesso!');
+                closeModal();
+                loadWeddings();
+
+            } catch (error) {
+                console.error('Erro ao salvar:', error);
+                showToast(error.message, 'error');
+            } finally {
+                saveBtn.disabled = false;
+                saveText.classList.remove('hidden');
+                savingText.classList.add('hidden');
+            }
+        });
+
+        // Fechar modal clicando fora
+        weddingModal.addEventListener('click', (e) => {
+            if (e.target === weddingModal) {
+                closeModal();
+            }
+        });
+
+        // Event listeners para esquemas de cores
+        document.addEventListener('DOMContentLoaded', function() {
+            // Seleção de esquemas de cores
+            document.querySelectorAll('input[name="color_scheme"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const customColors = document.getElementById('customColors');
+                    
+                    if (this.value === 'custom') {
+                        customColors.classList.remove('hidden');
+                    } else {
+                        customColors.classList.add('hidden');
+                        applyColorScheme(this.value);
+                    }
+                    
+                    // Atualizar visual dos botões
+                    document.querySelectorAll('.color-scheme-option').forEach(option => {
+                        option.classList.remove('border-pink-500', 'border-blue-500', 'border-emerald-500', 'border-purple-500');
+                        option.classList.add('border-gray-300');
+                    });
+                    
+                    const selectedOption = document.querySelector(`[data-scheme="${this.value}"]`);
+                    if (selectedOption) {
+                        selectedOption.classList.remove('border-gray-300');
+                        selectedOption.classList.add(this.value === 'custom' ? 'border-purple-500' : 'border-pink-500');
+                    }
+                });
+            });
+
+            // Event listeners para color pickers
+            ['backgroundColor', 'textColor', 'accentColor'].forEach(colorId => {
+                const colorInput = document.getElementById(colorId);
+                const textInput = document.getElementById(colorId + 'Text');
+                
+                colorInput.addEventListener('change', function() {
+                    textInput.value = this.value;
+                    updateColorPreview();
+                });
+                
+                textInput.addEventListener('input', function() {
+                    updateColorPicker(colorId, this.value);
+                });
+            });
+
+            // Event listener para o formulário de casamento
+            weddingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                try {
+                    const formData = new FormData(weddingForm);
+                    console.log('Enviando dados do formulário...');
+                    
+                    // Mostrar loading
+                    const saveBtn = document.getElementById('saveBtn');
+                    const saveText = document.getElementById('saveText');
+                    const savingText = document.getElementById('savingText');
+                    
+                    saveBtn.disabled = true;
+                    saveText.classList.add('hidden');
+                    savingText.classList.remove('hidden');
+                    
+                    const result = await saveWedding(formData);
+                    console.log('Resultado do salvamento:', result);
+                    
+                    // Mostrar toast de sucesso
+                    showToast('Lista salva com sucesso!', 'success');
+                    
+                    // Fechar modal
+                    closeModal();
+                    
+                    // Recarregar lista
+                    await loadWeddings();
+                    
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    showToast(error.message || 'Erro ao salvar lista', 'error');
+                } finally {
+                    // Resetar botão
+                    const saveBtn = document.getElementById('saveBtn');
+                    const saveText = document.getElementById('saveText');
+                    const savingText = document.getElementById('savingText');
+                    
+                    saveBtn.disabled = false;
+                    saveText.classList.remove('hidden');
+                    savingText.classList.add('hidden');
+                }
+            });
+
+            // Carregar casamentos
+            loadWeddings();
+        });
+    </script>
+</body>
+</html>
+

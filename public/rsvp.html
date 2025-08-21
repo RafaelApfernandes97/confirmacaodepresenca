@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Presença</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .font-script {
+            font-family: 'Dancing Script', cursive;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--bg-color, #9c2851) 0%, var(--bg-color-light, #b8336a) 30%, var(--bg-color, #a0295e) 70%, var(--bg-color-dark, #8b1f4a) 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(156, 40, 81, 0.3);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(156, 40, 81, 0.4);
+        }
+        
+        .btn-marsala {
+            background: linear-gradient(135deg, #9c2851 0%, #b8336a 100%);
+        }
+        
+        .btn-gold {
+            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+            color: #333;
+        }
+        
+        .text-marsala { color: var(--bg-color, #9c2851); }
+        .text-gold { color: var(--accent-color, #d4af37); }
+        .border-marsala { border-color: var(--bg-color, #9c2851); }
+        .border-gold { border-color: var(--accent-color, #d4af37); }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Design clean estilo Lejour */
+        .clean-section {
+            background: transparent;
+            backdrop-filter: none;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+            margin-bottom: 3rem;
+        }
+        
+        .clean-section-no-bg {
+            background: transparent;
+            backdrop-filter: none;
+            box-shadow: none;
+            border: none;
+            padding: 0;
+        }
+        
+        /* Layout fluido e clean */
+        .flow-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+        
+
+        
+        /* Mapa clean */
+        .modern-map {
+            border-radius: 0;
+            overflow: hidden;
+            box-shadow: none;
+            border: none;
+        }
+        
+        /* Responsividade melhorada */
+        @media (max-width: 768px) {
+            .clean-section {
+                padding: 0;
+                margin-bottom: 2rem;
+            }
+            
+
+            
+            .flow-layout {
+                gap: 2rem;
+            }
+            
+            .w-full.max-w-4xl {
+                max-width: 100%;
+                padding: 0 1rem;
+            }
+        }
+        
+        /* Animações suaves */
+        .clean-section {
+            transition: all 0.3s ease;
+        }
+        
+        /* Espaçamento dinâmico */
+        .dynamic-spacing {
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Texto clean */
+        .clean-text {
+            color: black;
+            text-shadow: none;
+        }
+        
+        /* Botões clean */
+        .clean-button {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .clean-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen py-8 px-4 relative">
+    <div class="text-center mb-8">
+        <h4 class="text-2xl font-bold text-black mb-3 clean-text">Confirmação de Presença</h4>
+    </div>
+    
+    <div class="w-full max-w-4xl mx-auto z-10 flow-layout">
+        <!-- Header com imagem personalizada -->
+        <div id="headerImageContainer" class="clean-section" style="display: none;">
+            <div class="relative">
+                <img 
+                    id="headerImage" 
+                    src="" 
+                    alt="Cabeçalho do casamento"
+                    class="w-full h-80 object-contain rounded-2xl"
+                    style="display: none;"
+                >
+                
+                <!-- Botão de refresh para cores -->
+                <button 
+                    onclick="forceRefreshColors()"
+                    class="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 hover:text-gray-900 p-3 rounded-full shadow-lg transition-all duration-300"
+                    title="Atualizar cores"
+                >
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Header com texto personalizado -->
+        <div id="headerTextContainer" class="clean-section" style="display: none;">
+            <div id="headerTextContent" class="text-center clean-text">
+                <!-- O conteúdo HTML será inserido aqui -->
+            </div>
+        </div>
+        
+        <!-- Fallback caso a imagem não carregue -->
+        <div id="fallbackHeader" style="display: none;" class="text-center clean-section fade-in">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full mb-6 shadow-lg">
+                <i class="fas fa-heart text-4xl text-black"></i>
+            </div>
+            <h1 id="coupleNamesFallback" class="text-5xl font-bold text-black mb-4 font-script clean-text">
+                Carregando...
+            </h1>
+            <p class="text-black text-lg opacity-90 clean-text">Tem a honra de convidá-los para o nosso casamento</p>
+        </div>
+
+        <!-- Loading Wedding Info -->
+        <div id="loadingWedding" class="text-center py-16 clean-section">
+            <i class="fas fa-spinner fa-spin text-5xl text-black mb-6"></i>
+            <p class="text-black text-lg opacity-90 clean-text">Carregando informações do casamento...</p>
+        </div>
+
+        <!-- Formulário RSVP -->
+        <div id="rsvp-form" class="clean-section fade-in">
+            <div class="text-center mb-8">
+                
+                <p class="text-black text-lg opacity-90 clean-text">Por favor, confirme sua presença preenchendo os dados abaixo</p>
+            </div>
+
+            <form id="confirmationForm" class="space-y-8">
+                <!-- Nome Completo -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-user mr-2 text-black opacity-80"></i>Nome do Responsável
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required
+                        placeholder="Seu nome completo"
+                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                    >
+                </div>
+
+                <!-- Quantidade de Adultos -->
+                <div>
+                    <label for="adults" class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-users mr-2 text-black opacity-80"></i>Quantidade de Adultos
+                    </label>
+                    <select 
+                        id="adults" 
+                        name="adults" 
+                        required
+                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                    >
+                        <option value="">Selecione</option>
+                        <option value="1">1 adulto</option>
+                        <option value="2">2 adultos</option>
+                        <option value="3">3 adultos</option>
+                        <option value="4">4 adultos</option>
+                        <option value="5">5 adultos</option>
+                        <option value="6">6+ adultos</option>
+                    </select>
+                </div>
+
+                <!-- Nomes dos Adultos (dinâmico) -->
+                <div id="adultsNamesContainer" class="hidden space-y-4">
+                    <label class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-user-edit mr-2 text-black opacity-80"></i>Nomes dos Adultos
+                    </label>
+                    <div id="adultsNamesList"></div>
+                </div>
+
+                <!-- Quantidade de Crianças -->
+                <div>
+                    <label for="children" class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-child mr-2 text-black opacity-80"></i>Quantidade de Crianças
+                    </label>
+                    <select 
+                        id="children" 
+                        name="children" 
+                        required
+                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                    >
+                        <option value="0">Nenhuma criança</option>
+                        <option value="1">1 criança</option>
+                        <option value="2">2 crianças</option>
+                        <option value="3">3 crianças</option>
+                        <option value="4">4 crianças</option>
+                        <option value="5">5+ crianças</option>
+                    </select>
+                </div>
+
+                <!-- Detalhes das Crianças (dinâmico) -->
+                <div id="childrenDetailsContainer" class="hidden space-y-4">
+                    <label class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-baby mr-2 text-black opacity-80"></i>Detalhes das Crianças
+                    </label>
+                    <div id="childrenDetailsList"></div>
+                </div>
+
+                <!-- Telefone -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-black mb-3 clean-text">
+                        <i class="fas fa-phone mr-2 text-black opacity-80"></i>Telefone (últimos 4 dígitos)
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        required
+                        placeholder="Ex: 9999"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                    >
+                    <p class="text-xs text-black opacity-70 mt-2 clean-text">Digite apenas os 4 últimos dígitos do seu telefone</p>
+                </div>
+
+                <!-- Botão Confirmar -->
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full btn-marsala text-black font-semibold py-5 px-8 rounded-xl transition-all duration-300 btn-hover focus:outline-none focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 text-lg shadow-lg mt-4"
+                >
+                    <span id="submitText">
+                        <i class="fas fa-heart mr-2"></i>Confirmar Presença
+                    </span>
+                    <span id="loadingText" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>Confirmando...
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Mensagem de Sucesso -->
+        <div id="success-message" class="hidden clean-section text-center">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-green-500 bg-opacity-20 rounded-full mb-6">
+                <i class="fas fa-check text-3xl text-green-400"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-black mb-3 clean-text">Presença Confirmada!</h2>
+            <p class="text-black mb-6 text-lg opacity-90 clean-text">Obrigado por confirmar sua presença. Aguardamos vocês com muito carinho!</p>
+            <div id="confirmation-details" class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-sm text-black">
+                <!-- Detalhes da confirmação serão inseridos aqui -->
+            </div>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error-message" class="hidden bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-400 border-opacity-30 rounded-2xl p-6 mt-6">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                <div>
+                    <h3 class="text-black font-semibold clean-text">Ops! Algo deu errado</h3>
+                    <p id="error-text" class="text-black text-sm mt-1 opacity-90 clean-text"></p>
+                </div>
+            </div>
+        </div>
+
+
+        
+        <!-- Rodapé com Localização -->
+        <div class="mt-12">
+            <!-- Endereço -->
+            <div id="venueSectionFooter" class="hidden text-center">
+                <div id="venueAddressFooter" class="text-black text-sm mb-8 opacity-90 clean-text"></div>
+            </div>
+            
+            <!-- Mapa Incorporado -->
+            <div id="mapContainerFooter" class="hidden">
+                <h4 class="text-lg font-medium text-black mb-6 text-center clean-text">
+                    <i class="fas fa-map mr-2"></i>Localização
+                </h4>
+                <div class="modern-map">
+                    <iframe
+                        id="googleMapFooter"
+                        src=""
+                        class="w-full h-64 border-0"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <div class="flex justify-center mt-8">
+                    <button 
+                        onclick="openInMaps()" 
+                        class="px-8 py-4 clean-button text-base rounded-xl transition-colors font-medium"
+                    >
+                        <i class="fas fa-directions mr-2"></i>Como Chegar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWedding = null;
+        let weddingSlug = null;
+        let guestConfirmation = null;
+
+        // Elementos do DOM
+        const form = document.getElementById('confirmationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingText = document.getElementById('loadingText');
+        const rsvpForm = document.getElementById('rsvp-form');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const confirmationDetails = document.getElementById('confirmation-details');
+        
+        // Elementos para campos dinâmicos
+        const adultsSelect = document.getElementById('adults');
+        const childrenSelect = document.getElementById('children');
+        const adultsNamesContainer = document.getElementById('adultsNamesContainer');
+        const childrenDetailsContainer = document.getElementById('childrenDetailsContainer');
+        const adultsNamesList = document.getElementById('adultsNamesList');
+        const childrenDetailsList = document.getElementById('childrenDetailsList');
+
+        // Elementos de informações do casamento
+        const loadingWedding = document.getElementById('loadingWedding');
+        const fallbackHeader = document.getElementById('fallbackHeader');
+        const coupleNamesFallback = document.getElementById('coupleNamesFallback');
+
+        // Obter slug da URL
+        function getWeddingSlug() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        // Função para forçar atualização das cores
+        function forceRefreshColors() {
+            console.log('🔄 Forçando atualização das cores...');
+            
+            // Limpar cache local
+            const cacheKey = `wedding_${weddingSlug}`;
+            localStorage.removeItem(cacheKey);
+            console.log('🗑️ Cache local limpo');
+            
+            // Recarregar dados do servidor
+            loadWeddingInfo();
+        }
+
+        // Função para aplicar cores personalizadas
+        function applyCustomColors(wedding) {
+            console.log('🎨 Aplicando cores personalizadas para:', wedding.bride_name + ' & ' + wedding.groom_name);
+            console.log('📋 Cores recebidas:', {
+                background_color: wedding.background_color,
+                text_color: wedding.text_color,
+                accent_color: wedding.accent_color
+            });
+            
+            if (wedding.background_color && wedding.text_color && wedding.accent_color) {
+                // Calcular variações da cor de fundo
+                const bgColor = wedding.background_color;
+                const bgColorRgb = hexToRgb(bgColor);
+                
+                if (bgColorRgb) {
+                    const bgColorLight = rgbToHex(
+                        Math.min(255, bgColorRgb.r + 30),
+                        Math.min(255, bgColorRgb.g + 30),
+                        Math.min(255, bgColorRgb.b + 30)
+                    );
+                    const bgColorDark = rgbToHex(
+                        Math.max(0, bgColorRgb.r - 30),
+                        Math.max(0, bgColorRgb.g - 30),
+                        Math.max(0, bgColorRgb.b - 30)
+                    );
+
+                    // Aplicar variáveis CSS
+                    document.documentElement.style.setProperty('--bg-color', bgColor);
+                    document.documentElement.style.setProperty('--bg-color-light', bgColorLight);
+                    document.documentElement.style.setProperty('--bg-color-dark', bgColorDark);
+                    document.documentElement.style.setProperty('--text-color', wedding.text_color);
+                    document.documentElement.style.setProperty('--accent-color', wedding.accent_color);
+                    
+                    console.log('✅ Variáveis CSS aplicadas:', {
+                        '--bg-color': bgColor,
+                        '--bg-color-light': bgColorLight,
+                        '--bg-color-dark': bgColorDark,
+                        '--text-color': wedding.text_color,
+                        '--accent-color': wedding.accent_color
+                    });
+                    
+                    // Verificar se as variáveis foram aplicadas
+                    const computedStyle = getComputedStyle(document.documentElement);
+                    console.log('🔍 Verificação das variáveis CSS:', {
+                        '--bg-color': computedStyle.getPropertyValue('--bg-color'),
+                        '--text-color': computedStyle.getPropertyValue('--text-color'),
+                        '--accent-color': computedStyle.getPropertyValue('--accent-color')
+                    });
+                } else {
+                    console.error('❌ Erro ao converter cor de fundo:', bgColor);
+                }
+            } else {
+                console.warn('⚠️ Cores incompletas, usando cores padrão');
+                console.log('Cores disponíveis:', {
+                    background_color: wedding.background_color,
+                    text_color: wedding.text_color,
+                    accent_color: wedding.accent_color
+                });
+            }
+        }
+
+        // Função para abrir no Google Maps
+        function openInMaps() {
+            if (currentWedding && currentWedding.venue_address) {
+                const encodedAddress = encodeURIComponent(currentWedding.venue_address);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+                window.open(mapsUrl, '_blank');
+            }
+        }
+
+        // Funções utilitárias para conversão de cores
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function componentToHex(c) {
+            const hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+        }
+
+        // Função para verificar cache local
+        function checkLocalCache() {
+            const cacheKey = `wedding_${weddingSlug}`;
+            const cachedData = localStorage.getItem(cacheKey);
+            
+            if (cachedData) {
+                try {
+                    const data = JSON.parse(cachedData);
+                    // Verificar se o cache não expirou (24 horas)
+                    if (Date.now() - data.timestamp < 24 * 60 * 60 * 1000) {
+                        return data.wedding;
+                    }
+                } catch (e) {
+                    console.log('Erro ao ler cache:', e);
+                }
+            }
+            return null;
+        }
+
+        // Função para salvar no cache local
+        function saveToCache(wedding) {
+            const cacheKey = `wedding_${weddingSlug}`;
+            const cacheData = {
+                wedding: wedding,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        }
+
+        // Função para verificar confirmação salva
+        function checkSavedConfirmation() {
+            const confirmationKey = `confirmation_${weddingSlug}`;
+            const savedConfirmation = localStorage.getItem(confirmationKey);
+            
+            if (savedConfirmation) {
+                try {
+                    return JSON.parse(savedConfirmation);
+                } catch (e) {
+                    console.log('Erro ao ler confirmação salva:', e);
+                }
+            }
+            return null;
+        }
+
+        // Função para salvar confirmação
+        function saveConfirmation(confirmationData) {
+            const confirmationKey = `confirmation_${weddingSlug}`;
+            localStorage.setItem(confirmationKey, JSON.stringify(confirmationData));
+        }
+
+        // Carregar informações do casamento
+        async function loadWeddingInfo() {
+            try {
+                weddingSlug = getWeddingSlug();
+                
+                // Verificar se já tem confirmação salva
+                guestConfirmation = checkSavedConfirmation();
+                if (guestConfirmation) {
+                    // Mostrar página de confirmação salva
+                    showSavedConfirmation();
+                    return;
+                }
+                
+                // Sempre buscar dados atualizados do servidor para evitar problemas de cache
+                console.log('🔄 Carregando dados atualizados do servidor...');
+                const response = await fetch(`/api/wedding/${weddingSlug}`);
+                
+                if (!response.ok) {
+                    throw new Error('Casamento não encontrado');
+                }
+
+                currentWedding = await response.json();
+                console.log('📋 Dados do casamento carregados:', {
+                    id: currentWedding.id,
+                    names: `${currentWedding.bride_name} & ${currentWedding.groom_name}`,
+                    colors: {
+                        color_scheme: currentWedding.color_scheme,
+                        background_color: currentWedding.background_color,
+                        text_color: currentWedding.text_color,
+                        accent_color: currentWedding.accent_color
+                    }
+                });
+                
+                // Salvar no cache para uso offline
+                saveToCache(currentWedding);
+                
+                // Aplicar cores personalizadas ANTES de exibir informações
+                console.log('🎨 Aplicando cores personalizadas...');
+                applyCustomColors(currentWedding);
+                
+                // Exibir informações do casamento
+                displayWeddingInfo();
+                
+                loadingWedding.classList.add('hidden');
+                rsvpForm.classList.remove('hidden');
+                fallbackHeader.classList.add('hidden'); // Ocultar fallback header
+
+            } catch (error) {
+                console.error('❌ Erro ao carregar casamento:', error);
+                
+                // Tentar usar cache em caso de erro
+                currentWedding = checkLocalCache();
+                if (currentWedding) {
+                    console.log('⚠️ Usando cache local devido a erro no servidor');
+                    applyCustomColors(currentWedding);
+                    displayWeddingInfo();
+                    loadingWedding.classList.add('hidden');
+                    rsvpForm.classList.remove('hidden');
+                    fallbackHeader.classList.add('hidden'); // Ocultar fallback header
+                } else {
+                    loadingWedding.innerHTML = `
+                        <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+                        <p class="text-black">Casamento não encontrado ou link inválido</p>
+                    `;
+                    rsvpForm.classList.add('hidden');
+                    fallbackHeader.classList.remove('hidden'); // Mostrar fallback header
+                }
+            }
+        }
+
+        // Exibir informações do casamento
+        function displayWeddingInfo() {
+            if (!currentWedding) return;
+
+            console.log('🔍 Debug - Dados do casamento recebidos:', {
+                header_text: currentWedding.header_text,
+                header_image: currentWedding.header_image,
+                has_header_text: !!currentWedding.header_text,
+                header_text_length: currentWedding.header_text ? currentWedding.header_text.length : 0
+            });
+
+            // Imagem de cabeçalho personalizada
+            const headerImg = document.getElementById('headerImage');
+            const headerImageContainer = document.getElementById('headerImageContainer');
+            const headerTextContainer = document.getElementById('headerTextContainer');
+            const headerTextContent = document.getElementById('headerTextContent');
+            
+            console.log('🔍 Debug - Elementos DOM encontrados:', {
+                headerImg: !!headerImg,
+                headerImageContainer: !!headerImageContainer,
+                headerTextContainer: !!headerTextContainer,
+                headerTextContent: !!headerTextContent
+            });
+            
+            // Verificar se há texto do cabeçalho
+            if (currentWedding.header_text && currentWedding.header_text.trim() !== '') {
+                console.log('✅ Exibindo texto do cabeçalho personalizado:', currentWedding.header_text);
+                headerTextContent.innerHTML = currentWedding.header_text;
+                headerTextContainer.style.display = 'block';
+                headerImageContainer.style.display = 'none';
+                fallbackHeader.classList.add('hidden');
+            } else if (currentWedding.header_image && currentWedding.header_image.trim() !== '') {
+                // Mostrar imagem se não há texto
+                console.log('Carregando imagem personalizada:', currentWedding.header_image);
+                headerImageContainer.style.display = 'block';
+                headerTextContainer.style.display = 'none';
+                headerImg.src = currentWedding.header_image;
+                
+                // Verificar se a imagem carregou corretamente
+                headerImg.onload = function() {
+                    console.log('Imagem personalizada carregada com sucesso');
+                    this.style.display = 'block';
+                    fallbackHeader.classList.add('hidden');
+                };
+                
+                headerImg.onerror = function() {
+                    console.log('Erro ao carregar imagem personalizada, usando fallback');
+                    this.style.display = 'none';
+                    fallbackHeader.classList.remove('hidden');
+                };
+            } else {
+                // Usar fallback se não há imagem nem texto personalizado
+                console.log('Sem imagem nem texto personalizado, usando fallback');
+                headerImg.style.display = 'none';
+                headerImageContainer.style.display = 'none';
+                headerTextContainer.style.display = 'none';
+                fallbackHeader.classList.remove('hidden');
+            }
+
+            // Atualizar título fallback
+            coupleNamesFallback.textContent = 
+                `${currentWedding.bride_name} & ${currentWedding.groom_name}`;
+
+
+
+            // Endereço e Mapa
+            if (currentWedding.venue_address) {
+                document.getElementById('venueAddressFooter').textContent = currentWedding.venue_address;
+                document.getElementById('venueSectionFooter').classList.remove('hidden');
+                
+                // Configurar mapa embutido
+                const mapContainer = document.getElementById('mapContainerFooter');
+                const googleMap = document.getElementById('googleMapFooter');
+                
+                // Criar URL do mapa embutido
+                const encodedAddress = encodeURIComponent(currentWedding.venue_address);
+                const mapUrl = `https://www.google.com/maps/embed/v1/place?key=&q=${encodedAddress}`;
+                
+                // Como não temos API key, usar uma versão mais simples
+                const simpleMapUrl = `https://maps.google.com/maps?q=${encodedAddress}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+                
+                googleMap.src = simpleMapUrl;
+                mapContainer.classList.remove('hidden');
+            }
+
+
+        }
+
+        // Função para mostrar confirmação salva
+        function showSavedConfirmation() {
+            // Carregar dados do cache para aplicar cores
+            currentWedding = checkLocalCache();
+            if (currentWedding) {
+                applyCustomColors(currentWedding);
+                displayWeddingInfo();
+            }
+            
+            // Ocultar formulário e loading
+            loadingWedding.classList.add('hidden');
+            rsvpForm.classList.add('hidden');
+            fallbackHeader.classList.add('hidden'); // Ocultar fallback header
+            
+            // Mostrar mensagem de confirmação salva
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('fade-in');
+
+            // Atualizar título da mensagem
+            successMessage.querySelector('h2').textContent = 'Presença Já Confirmada!';
+            successMessage.querySelector('p').textContent = 
+                'Você já confirmou sua presença anteriormente. Obrigado!';
+
+            // Mostrar detalhes da confirmação salva
+            let detailsHtml = `
+                <div class="space-y-3">
+                    <p><strong>Responsável:</strong> ${guestConfirmation.name}</p>
+                    <p><strong>Total de Pessoas:</strong> ${guestConfirmation.adults + guestConfirmation.children}</p>
+            `;
+            
+            if (guestConfirmation.adults_names && guestConfirmation.adults_names.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Adultos (${guestConfirmation.adults}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${guestConfirmation.adults_names.map(name => `<li>${name}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            if (guestConfirmation.children_details && guestConfirmation.children_details.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Crianças (${guestConfirmation.children}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${guestConfirmation.children_details.map(child => 
+                                `<li>${child.name} - ${child.over6 ? 'Maior de 6 anos' : 'Menor de 6 anos'}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            detailsHtml += `
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-sm text-gray-600">Confirmado em: ${new Date(guestConfirmation.confirmationDate).toLocaleString('pt-BR')}</p>
+                    </div>
+                </div>
+            `;
+            
+            confirmationDetails.innerHTML = detailsHtml;
+        }
+
+        // Máscara para telefone (apenas números)
+        document.getElementById('phone').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Função para criar campos de nomes de adultos
+        function createAdultsNameFields(count) {
+            adultsNamesList.innerHTML = '';
+            
+            if (count > 0) {
+                adultsNamesContainer.classList.remove('hidden');
+                adultsNamesContainer.classList.add('fade-in');
+                
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <input 
+                            type="text" 
+                            id="adult_${i}" 
+                            name="adult_${i}" 
+                            required
+                            placeholder="Nome do ${i}º adulto"
+                            class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                        >
+                    `;
+                    adultsNamesList.appendChild(div);
+                }
+            } else {
+                adultsNamesContainer.classList.add('hidden');
+            }
+        }
+
+        // Função para criar campos de detalhes das crianças
+        function createChildrenDetailFields(count) {
+            childrenDetailsList.innerHTML = '';
+            
+            if (count > 0) {
+                childrenDetailsContainer.classList.remove('hidden');
+                childrenDetailsContainer.classList.add('fade-in');
+                
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-xl space-y-5 border border-white border-opacity-20';
+                    div.innerHTML = `
+                        <h4 class="font-semibold text-black text-lg mb-3 clean-text">${i}ª Criança</h4>
+                        <input 
+                            type="text" 
+                            id="child_name_${i}" 
+                            name="child_name_${i}" 
+                            required
+                            placeholder="Nome da criança"
+                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all duration-300 bg-white bg-opacity-90 backdrop-blur-sm"
+                        >
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                            <label class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors cursor-pointer">
+                                <input 
+                                    type="radio" 
+                                    name="child_age_${i}" 
+                                    value="over6" 
+                                    required
+                                    class="mr-3 text-pink-500 focus:ring-pink-500"
+                                >
+                                <span class="text-sm text-black font-medium clean-text">Maior de 6 anos</span>
+                            </label>
+                            <label class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors cursor-pointer">
+                                <input 
+                                    type="radio" 
+                                    name="child_age_${i}" 
+                                    value="under6" 
+                                    required
+                                    class="mr-3 text-pink-500 focus:ring-pink-500"
+                                >
+                                <span class="text-sm text-black font-medium clean-text">Menor de 6 anos</span>
+                            </label>
+                        </div>
+                    `;
+                    childrenDetailsList.appendChild(div);
+                }
+            } else {
+                childrenDetailsContainer.classList.add('hidden');
+            }
+        }
+
+        // Event listeners para mudança na quantidade
+        adultsSelect.addEventListener('change', function(e) {
+            const count = parseInt(e.target.value) || 0;
+            createAdultsNameFields(count);
+        });
+
+        childrenSelect.addEventListener('change', function(e) {
+            const count = parseInt(e.target.value) || 0;
+            createChildrenDetailFields(count);
+        });
+
+        // Função para mostrar erro
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            errorMessage.classList.add('shake');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('shake');
+            }, 500);
+
+            // Esconder erro após 5 segundos
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Função para mostrar sucesso
+        function showSuccess(data) {
+            // Salvar confirmação no cache local
+            const confirmationData = {
+                ...data.guest,
+                confirmationDate: new Date().toISOString()
+            };
+            saveConfirmation(confirmationData);
+            
+            // Ocultar formulário
+            rsvpForm.classList.add('hidden');
+            
+            // Mostrar mensagem de sucesso
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('fade-in');
+
+            // Preencher detalhes da confirmação
+            let detailsHtml = `
+                <div class="space-y-3">
+                    <p><strong>Responsável:</strong> ${data.guest.name}</p>
+                    <p><strong>Total de Pessoas:</strong> ${data.guest.adults + data.guest.children}</p>
+            `;
+            
+            // Mostrar nomes dos adultos
+            if (data.guest.adults_names && data.guest.adults_names.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Adultos (${data.guest.adults}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${data.guest.adults_names.map(name => `<li>${name}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Mostrar detalhes das crianças
+            if (data.guest.children_details && data.guest.children_details.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Crianças (${data.guest.children}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${data.guest.children_details.map(child => 
+                                `<li>${child.name} - ${child.over6 ? 'Maior de 6 anos' : 'Menor de 6 anos'}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            detailsHtml += `
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-sm text-gray-600">Confirmado em: ${new Date().toLocaleString('pt-BR')}</p>
+                    </div>
+                </div>
+            `;
+            confirmationDetails.innerHTML = detailsHtml;
+        }
+
+        // Função para resetar botão
+        function resetButton() {
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+        }
+
+        // Submissão do formulário
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            if (!weddingSlug) {
+                showError('Erro: Link de casamento inválido.');
+                return;
+            }
+
+            // Desabilitar botão e mostrar loading
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+
+            // Esconder mensagens anteriores
+            errorMessage.classList.add('hidden');
+
+            // Coletar dados do formulário
+            const formData = new FormData(form);
+            const adultsCount = parseInt(formData.get('adults')) || 0;
+            const childrenCount = parseInt(formData.get('children')) || 0;
+            
+            // Coletar nomes dos adultos
+            const adultsNames = [];
+            for (let i = 1; i <= adultsCount; i++) {
+                const name = formData.get(`adult_${i}`);
+                if (name && name.trim()) {
+                    adultsNames.push(name.trim());
+                }
+            }
+            
+            // Coletar detalhes das crianças
+            const childrenDetails = [];
+            for (let i = 1; i <= childrenCount; i++) {
+                const name = formData.get(`child_name_${i}`);
+                const age = formData.get(`child_age_${i}`);
+                if (name && name.trim() && age) {
+                    childrenDetails.push({
+                        name: name.trim(),
+                        over6: age === 'over6'
+                    });
+                }
+            }
+            
+            const data = {
+                name: formData.get('name').trim(),
+                adults: adultsCount,
+                children: childrenCount,
+                adults_names: adultsNames,
+                children_details: childrenDetails,
+                phone: formData.get('phone').trim()
+            };
+
+            // Validação básica no frontend
+            if (!data.name || !data.phone || isNaN(data.adults) || isNaN(data.children)) {
+                showError('Por favor, preencha todos os campos corretamente.');
+                resetButton();
+                return;
+            }
+
+            if (data.adults + data.children === 0) {
+                showError('Deve haver pelo menos uma pessoa confirmada.');
+                resetButton();
+                return;
+            }
+
+            // Validar se todos os nomes dos adultos foram preenchidos
+            if (data.adults > 0 && data.adults_names.length !== data.adults) {
+                showError('Por favor, preencha o nome de todos os adultos.');
+                resetButton();
+                return;
+            }
+
+            // Validar se todos os detalhes das crianças foram preenchidos
+            if (data.children > 0 && data.children_details.length !== data.children) {
+                showError('Por favor, preencha todos os dados das crianças.');
+                resetButton();
+                return;
+            }
+
+            try {
+                // Enviar dados para o servidor
+                const response = await fetch(`/api/rsvp/${weddingSlug}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Sucesso
+                    showSuccess(result);
+                } else {
+                    // Erro do servidor
+                    showError(result.error || 'Erro ao confirmar presença. Tente novamente.');
+                    resetButton();
+                }
+
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro de conexão. Verifique sua internet e tente novamente.');
+                resetButton();
+            }
+        });
+
+        // Carregar informações do casamento quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWeddingInfo();
+            
+            // Aplicar fade-in com delay nos elementos
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>

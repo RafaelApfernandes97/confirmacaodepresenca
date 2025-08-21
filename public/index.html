@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmação de Presença - Casamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --marsala: #8B2635;
+            --marsala-light: #A43248;
+            --marsala-dark: #6B1D2A;
+            --gold: #C4975A;
+            --gold-light: #D4A974;
+            --gold-dark: #B38747;
+            --cream: #F5F3F0;
+            --warm-white: #FEFCF9;
+            --dark-text: #2D1810;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--cream) 0%, var(--warm-white) 100%);
+            color: var(--dark-text);
+        }
+        
+        .elegant-bg {
+            background: linear-gradient(135deg, var(--marsala) 0%, var(--marsala-dark) 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(139, 38, 53, 0.15), 0 10px 20px rgba(139, 38, 53, 0.1);
+        }
+        
+        .input-focus:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(196, 151, 90, 0.3);
+            border-color: var(--gold);
+        }
+        
+        .btn-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(139, 38, 53, 0.4);
+        }
+        
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .invitation-header {
+            background: var(--warm-white);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(139, 38, 53, 0.2);
+        }
+        
+        .invitation-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .form-container {
+            background: var(--warm-white);
+            border: 2px solid var(--gold);
+        }
+        
+        .text-marsala { color: var(--marsala); }
+        .text-gold { color: var(--gold); }
+        .bg-marsala { background-color: var(--marsala); }
+        .bg-gold { background-color: var(--gold); }
+        .border-gold { border-color: var(--gold); }
+        .border-marsala { border-color: var(--marsala); }
+        
+        .elegant-title {
+            font-family: 'Playfair Display', serif;
+            color: var(--marsala);
+            text-shadow: 0 2px 4px rgba(139, 38, 53, 0.1);
+        }
+        
+        .elegant-gradient {
+            background: linear-gradient(135deg, var(--marsala) 0%, var(--gold) 100%);
+        }
+        
+        .input-elegant {
+            border: 2px solid var(--gold);
+            background: var(--warm-white);
+        }
+        
+        .input-elegant:focus {
+            border-color: var(--marsala);
+            box-shadow: 0 0 0 3px rgba(139, 38, 53, 0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-lg">
+        <!-- Invitation Header -->
+        <div class="invitation-header mb-8 fade-in">
+            <img src="/assets/img/kawanne.png" alt="Convite de Casamento Kawanne e Pedro" class="invitation-image">
+        </div>
+        
+        <!-- Welcome Text -->
+        <div class="text-center mb-8 fade-in">
+            <h1 class="elegant-title text-3xl font-bold mb-3">Confirmação de Presença</h1>
+            <p class="text-gold text-lg font-medium">Confirme sua presença em nosso grande dia</p>
+            <div class="w-24 h-1 bg-gold mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <!-- Formulário RSVP -->
+        <div id="rsvp-form" class="bg-white rounded-2xl p-8 card-shadow fade-in">
+            <form id="confirmationForm" class="space-y-6">
+                <!-- Nome Completo -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2 text-purple-500"></i>Nome Completo
+                    </label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        required
+                        placeholder="Seu nome completo"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 input-focus"
+                    >
+                </div>
+
+                <!-- Quantidade de Adultos -->
+                <div>
+                    <label for="adults" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-users mr-2 text-purple-500"></i>Quantidade de Adultos
+                    </label>
+                    <select 
+                        id="adults" 
+                        name="adults" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 input-focus"
+                    >
+                        <option value="">Selecione</option>
+                        <option value="1">1 adulto</option>
+                        <option value="2">2 adultos</option>
+                        <option value="3">3 adultos</option>
+                        <option value="4">4 adultos</option>
+                        <option value="5">5 adultos</option>
+                        <option value="6">6+ adultos</option>
+                    </select>
+                </div>
+
+                <!-- Nomes dos Adultos (dinâmico) -->
+                <div id="adultsNamesContainer" class="hidden space-y-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user-edit mr-2 text-purple-500"></i>Nomes dos Adultos
+                    </label>
+                    <div id="adultsNamesList"></div>
+                </div>
+
+                <!-- Quantidade de Crianças -->
+                <div>
+                    <label for="children" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-child mr-2 text-purple-500"></i>Quantidade de Crianças
+                    </label>
+                    <select 
+                        id="children" 
+                        name="children" 
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 input-focus"
+                    >
+                        <option value="0">Nenhuma criança</option>
+                        <option value="1">1 criança</option>
+                        <option value="2">2 crianças</option>
+                        <option value="3">3 crianças</option>
+                        <option value="4">4 crianças</option>
+                        <option value="5">5+ crianças</option>
+                    </select>
+                </div>
+
+                <!-- Detalhes das Crianças (dinâmico) -->
+                <div id="childrenDetailsContainer" class="hidden space-y-3">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-baby mr-2 text-purple-500"></i>Detalhes das Crianças
+                    </label>
+                    <div id="childrenDetailsList"></div>
+                </div>
+
+                <!-- Telefone -->
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-phone mr-2 text-purple-500"></i>Telefone (últimos 4 dígitos)
+                    </label>
+                    <input 
+                        type="tel" 
+                        id="phone" 
+                        name="phone" 
+                        required
+                        placeholder="Ex: 9999"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 input-focus"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">Digite apenas os 4 últimos dígitos do seu telefone</p>
+                </div>
+
+                <!-- Botão Confirmar -->
+                <button 
+                    type="submit" 
+                    id="submitBtn"
+                    class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-300 btn-hover focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+                >
+                    <span id="submitText">
+                        <i class="fas fa-heart mr-2"></i>Confirmar Presença
+                    </span>
+                    <span id="loadingText" class="hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i>Confirmando...
+                    </span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Mensagem de Sucesso -->
+        <div id="success-message" class="hidden bg-white rounded-2xl p-8 card-shadow text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+                <i class="fas fa-check text-2xl text-green-500"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Presença Confirmada!</h2>
+            <p class="text-gray-600 mb-4">Obrigado por confirmar sua presença. Aguardamos vocês com muito carinho!</p>
+            <div id="confirmation-details" class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                <!-- Detalhes da confirmação serão inseridos aqui -->
+            </div>
+        </div>
+
+        <!-- Mensagem de Erro -->
+        <div id="error-message" class="hidden bg-red-50 border border-red-200 rounded-2xl p-6 mt-4">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-red-500 mr-3"></i>
+                <div>
+                    <h3 class="text-red-800 font-semibold">Ops! Algo deu errado</h3>
+                    <p id="error-text" class="text-red-600 text-sm mt-1"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-8 text-purple-100 text-sm">
+            <p>❤️ Desenvolvido com amor para o nosso grande dia</p>
+        </div>
+    </div>
+
+    <script>
+        // Elementos do DOM
+        const form = document.getElementById('confirmationForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitText = document.getElementById('submitText');
+        const loadingText = document.getElementById('loadingText');
+        const rsvpForm = document.getElementById('rsvp-form');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const confirmationDetails = document.getElementById('confirmation-details');
+        
+        // Elementos para campos dinâmicos
+        const adultsSelect = document.getElementById('adults');
+        const childrenSelect = document.getElementById('children');
+        const adultsNamesContainer = document.getElementById('adultsNamesContainer');
+        const childrenDetailsContainer = document.getElementById('childrenDetailsContainer');
+        const adultsNamesList = document.getElementById('adultsNamesList');
+        const childrenDetailsList = document.getElementById('childrenDetailsList');
+
+        // Máscara para telefone (apenas números)
+        document.getElementById('phone').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        // Função para criar campos de nomes de adultos
+        function createAdultsNameFields(count) {
+            adultsNamesList.innerHTML = '';
+            
+            if (count > 0) {
+                adultsNamesContainer.classList.remove('hidden');
+                adultsNamesContainer.classList.add('fade-in');
+                
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.innerHTML = `
+                        <input 
+                            type="text" 
+                            id="adult_${i}" 
+                            name="adult_${i}" 
+                            required
+                            placeholder="Nome do ${i}º adulto"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 input-focus"
+                        >
+                    `;
+                    adultsNamesList.appendChild(div);
+                }
+            } else {
+                adultsNamesContainer.classList.add('hidden');
+            }
+        }
+
+        // Função para criar campos de detalhes das crianças
+        function createChildrenDetailFields(count) {
+            childrenDetailsList.innerHTML = '';
+            
+            if (count > 0) {
+                childrenDetailsContainer.classList.remove('hidden');
+                childrenDetailsContainer.classList.add('fade-in');
+                
+                for (let i = 1; i <= count; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'bg-gray-50 p-4 rounded-lg space-y-3';
+                    div.innerHTML = `
+                        <h4 class="font-medium text-gray-700">${i}ª Criança</h4>
+                        <input 
+                            type="text" 
+                            id="child_name_${i}" 
+                            name="child_name_${i}" 
+                            required
+                            placeholder="Nome da criança"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300"
+                        >
+                        <div class="flex items-center space-x-3">
+                            <label class="flex items-center">
+                                <input 
+                                    type="radio" 
+                                    name="child_age_${i}" 
+                                    value="over6" 
+                                    required
+                                    class="mr-2 text-purple-500 focus:ring-purple-500"
+                                >
+                                <span class="text-sm text-gray-700">Maior de 6 anos</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input 
+                                    type="radio" 
+                                    name="child_age_${i}" 
+                                    value="under6" 
+                                    required
+                                    class="mr-2 text-purple-500 focus:ring-purple-500"
+                                >
+                                <span class="text-sm text-gray-700">Menor de 6 anos</span>
+                            </label>
+                        </div>
+                    `;
+                    childrenDetailsList.appendChild(div);
+                }
+            } else {
+                childrenDetailsContainer.classList.add('hidden');
+            }
+        }
+
+        // Event listeners para mudança na quantidade
+        adultsSelect.addEventListener('change', function(e) {
+            const count = parseInt(e.target.value) || 0;
+            createAdultsNameFields(count);
+        });
+
+        childrenSelect.addEventListener('change', function(e) {
+            const count = parseInt(e.target.value) || 0;
+            createChildrenDetailFields(count);
+        });
+
+        // Função para mostrar erro
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            errorMessage.classList.add('shake');
+            
+            setTimeout(() => {
+                errorMessage.classList.remove('shake');
+            }, 500);
+
+            // Esconder erro após 5 segundos
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Função para mostrar sucesso
+        function showSuccess(data) {
+            // Ocultar formulário
+            rsvpForm.classList.add('hidden');
+            
+            // Mostrar mensagem de sucesso
+            successMessage.classList.remove('hidden');
+            successMessage.classList.add('fade-in');
+
+            // Preencher detalhes da confirmação
+            let detailsHtml = `
+                <div class="space-y-3">
+                    <p><strong>Responsável:</strong> ${data.guest.name}</p>
+                    <p><strong>Total de Pessoas:</strong> ${data.guest.adults + data.guest.children}</p>
+            `;
+            
+            // Mostrar nomes dos adultos
+            if (data.guest.adults_names && data.guest.adults_names.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Adultos (${data.guest.adults}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${data.guest.adults_names.map(name => `<li>${name}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            // Mostrar detalhes das crianças
+            if (data.guest.children_details && data.guest.children_details.length > 0) {
+                detailsHtml += `
+                    <div>
+                        <p><strong>Crianças (${data.guest.children}):</strong></p>
+                        <ul class="list-disc list-inside ml-4 text-sm">
+                            ${data.guest.children_details.map(child => 
+                                `<li>${child.name} - ${child.over6 ? 'Maior de 6 anos' : 'Menor de 6 anos'}</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+            
+            detailsHtml += '</div>';
+            confirmationDetails.innerHTML = detailsHtml;
+        }
+
+        // Função para resetar botão
+        function resetButton() {
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+        }
+
+        // Submissão do formulário
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Desabilitar botão e mostrar loading
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+
+            // Esconder mensagens anteriores
+            errorMessage.classList.add('hidden');
+
+            // Coletar dados do formulário
+            const formData = new FormData(form);
+            const adultsCount = parseInt(formData.get('adults')) || 0;
+            const childrenCount = parseInt(formData.get('children')) || 0;
+            
+            // Coletar nomes dos adultos
+            const adultsNames = [];
+            for (let i = 1; i <= adultsCount; i++) {
+                const name = formData.get(`adult_${i}`);
+                if (name && name.trim()) {
+                    adultsNames.push(name.trim());
+                }
+            }
+            
+            // Coletar detalhes das crianças
+            const childrenDetails = [];
+            for (let i = 1; i <= childrenCount; i++) {
+                const name = formData.get(`child_name_${i}`);
+                const age = formData.get(`child_age_${i}`);
+                if (name && name.trim() && age) {
+                    childrenDetails.push({
+                        name: name.trim(),
+                        over6: age === 'over6'
+                    });
+                }
+            }
+            
+            const data = {
+                name: formData.get('name').trim(),
+                adults: adultsCount,
+                children: childrenCount,
+                adults_names: adultsNames,
+                children_details: childrenDetails,
+                phone: formData.get('phone').trim()
+            };
+
+            // Validação básica no frontend
+            if (!data.name || !data.phone || isNaN(data.adults) || isNaN(data.children)) {
+                showError('Por favor, preencha todos os campos corretamente.');
+                resetButton();
+                return;
+            }
+
+            if (data.adults + data.children === 0) {
+                showError('Deve haver pelo menos uma pessoa confirmada.');
+                resetButton();
+                return;
+            }
+
+            // Validar se todos os nomes dos adultos foram preenchidos
+            if (data.adults > 0 && data.adults_names.length !== data.adults) {
+                showError('Por favor, preencha o nome de todos os adultos.');
+                resetButton();
+                return;
+            }
+
+            // Validar se todos os detalhes das crianças foram preenchidos
+            if (data.children > 0 && data.children_details.length !== data.children) {
+                showError('Por favor, preencha todos os dados das crianças.');
+                resetButton();
+                return;
+            }
+
+            try {
+                // Enviar dados para o servidor
+                const response = await fetch('/api/rsvp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Sucesso
+                    showSuccess(result);
+                } else {
+                    // Erro do servidor
+                    showError(result.error || 'Erro ao confirmar presença. Tente novamente.');
+                    resetButton();
+                }
+
+            } catch (error) {
+                console.error('Erro:', error);
+                showError('Erro de conexão. Verifique sua internet e tente novamente.');
+                resetButton();
+            }
+        });
+
+        // Animações de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            // Aplicar fade-in com delay nos elementos
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.2}s`;
+            });
+        });
+    </script>
+</body>
+</html>
+
