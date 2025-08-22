@@ -28,12 +28,20 @@ RUN echo '#!/bin/sh' > /app/start.sh && \
     echo 'echo "Checking database..."' >> /app/start.sh && \
     echo 'if [ ! -f /app/wedding_rsvp.db ]; then' >> /app/start.sh && \
     echo '    echo "Database not found, creating new one..."' >> /app/start.sh && \
-    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS weddings (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, location TEXT NOT NULL, description TEXT, slug TEXT UNIQUE NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
-    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS guests (id INTEGER PRIMARY KEY AUTOINCREMENT, wedding_slug TEXT NOT NULL, name TEXT NOT NULL, adults INTEGER NOT NULL, adults_names TEXT, children INTEGER NOT NULL, children_details TEXT, confirmed_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (wedding_slug) REFERENCES weddings (slug));"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS weddings (id INTEGER PRIMARY KEY AUTOINCREMENT, bride_name TEXT NOT NULL, groom_name TEXT NOT NULL, wedding_date TEXT, wedding_time TEXT, venue_address TEXT, venue_name TEXT, additional_info TEXT, header_image TEXT, header_text TEXT, color_scheme TEXT DEFAULT \"marsala\", background_color TEXT DEFAULT \"#9c2851\", text_color TEXT DEFAULT \"#ffffff\", accent_color TEXT DEFAULT \"#d4af37\", slug TEXT UNIQUE NOT NULL, is_active BOOLEAN DEFAULT 1, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS guests (id INTEGER PRIMARY KEY AUTOINCREMENT, wedding_slug TEXT NOT NULL, name TEXT NOT NULL, adults INTEGER NOT NULL, adults_names TEXT, children INTEGER NOT NULL, children_details TEXT, confirmed_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
     echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS admin_users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
     echo '    echo "Database created successfully!"' >> /app/start.sh && \
     echo 'else' >> /app/start.sh && \
-    echo '    echo "Database found, using existing one..."' >> /app/start.sh && \
+    echo '    echo "Database found, checking schema..."' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN is_active BOOLEAN DEFAULT 1;" 2>/dev/null || echo "Column is_active already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN color_scheme TEXT DEFAULT \"marsala\";" 2>/dev/null || echo "Column color_scheme already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN background_color TEXT DEFAULT \"#9c2851\";" 2>/dev/null || echo "Column background_color already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN text_color TEXT DEFAULT \"#ffffff\";" 2>/dev/null || echo "Column text_color already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN accent_color TEXT DEFAULT \"#d4af37\";" 2>/dev/null || echo "Column accent_color already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN header_image TEXT;" 2>/dev/null || echo "Column header_image already exists"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "ALTER TABLE weddings ADD COLUMN header_text TEXT;" 2>/dev/null || echo "Column header_text already exists"' >> /app/start.sh && \
+    echo '    echo "Schema updated successfully!"' >> /app/start.sh && \
     echo 'fi' >> /app/start.sh && \
     echo '' >> /app/start.sh && \
     echo 'echo "Starting application..."' >> /app/start.sh && \
