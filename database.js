@@ -432,7 +432,7 @@ const weddingOperations = {
                 });
                 
                 // Primeiro verificar se o casamento existe
-                db.get('SELECT id, bride_name, groom_name, is_active FROM weddings WHERE id = ?', [id], (err, wedding) => {
+                db.get('SELECT id, bride_name, groom_name, is_active, slug FROM weddings WHERE id = ?', [id], (err, wedding) => {
                     if (err) {
                         console.error('❌ Erro ao verificar casamento:', err);
                         reject(err);
@@ -448,7 +448,7 @@ const weddingOperations = {
                     console.log(`📋 Casamento encontrado: ${wedding.bride_name} & ${wedding.groom_name} (Ativo: ${wedding.is_active})`);
                     
                     // Verificar quantos convidados existem
-                    db.get('SELECT COUNT(*) as count FROM guests WHERE wedding_id = ?', [id], (err, guestCount) => {
+                    db.get('SELECT COUNT(*) as count FROM guests WHERE wedding_slug = ?', [wedding.slug], (err, guestCount) => {
                         if (err) {
                             console.error('❌ Erro ao contar convidados:', err);
                             reject(err);
@@ -459,8 +459,8 @@ const weddingOperations = {
                         
                         // Primeiro deletar todos os convidados do casamento
                         db.run(
-                            'DELETE FROM guests WHERE wedding_id = ?',
-                            [id],
+                            'DELETE FROM guests WHERE wedding_slug = ?',
+                            [wedding.slug],
                             function(err) {
                                 if (err) {
                                     console.error('❌ Erro ao deletar convidados:', err);
@@ -511,11 +511,11 @@ const weddingOperations = {
 // Funções para manipular convidados
 const guestOperations = {
     // Verificar se telefone já está cadastrado em um casamento específico
-    checkPhoneExists: (weddingId, phone) => {
+    checkPhoneExists: (weddingSlug, phone) => {
         return new Promise((resolve, reject) => {
             db.get(
-                'SELECT id, name FROM guests WHERE wedding_id = ? AND phone = ?',
-                [weddingId, phone],
+                'SELECT id, name FROM guests WHERE wedding_slug = ? AND phone = ?',
+                [weddingSlug, phone],
                 (err, row) => {
                     if (err) reject(err);
                     else resolve(row);
@@ -527,15 +527,15 @@ const guestOperations = {
     // Inserir novo convidado
     insertGuest: (guestData) => {
         return new Promise((resolve, reject) => {
-            const { wedding_id, name, adults, children, adults_names, children_details, phone } = guestData;
+            const { wedding_slug, name, adults, children, adults_names, children_details, phone } = guestData;
             
             // Converter arrays para JSON strings
             const adultsNamesJson = adults_names ? JSON.stringify(adults_names) : null;
             const childrenDetailsJson = children_details ? JSON.stringify(children_details) : null;
             
             db.run(
-                'INSERT INTO guests (wedding_id, name, adults, children, adults_names, children_details, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [wedding_id, name, adults, children, adultsNamesJson, childrenDetailsJson, phone],
+                'INSERT INTO guests (wedding_slug, name, adults, children, adults_names, children_details, phone) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                [wedding_slug, name, adults, children, adultsNamesJson, childrenDetailsJson, phone],
                 function(err) {
                     if (err) {
                         reject(err);

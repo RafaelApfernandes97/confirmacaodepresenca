@@ -10,11 +10,12 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - SESSION_SECRET=${SESSION_SECRET:-default-secret-change-in-production}
+      - MONGODB_URI=mongodb://admin:admin@164.68.109.41:3080/?tls=false
     volumes:
-      # Volume absoluto para o banco de dados - ESSENCIAL para persistência
-      - /var/lib/easypanel/data/wedding-rsvp/database:/app/wedding_rsvp.db
       # Volume absoluto para uploads
       - /var/lib/easypanel/data/wedding-rsvp/uploads:/app/public/uploads
+      # Volume absoluto para exports
+      - /var/lib/easypanel/data/wedding-rsvp/exports:/app/exports
       # Volume absoluto para logs
       - /var/lib/easypanel/data/wedding-rsvp/logs:/app/logs
     restart: unless-stopped

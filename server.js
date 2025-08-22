@@ -9,7 +9,13 @@ const fs = require('fs');
 const multer = require('multer');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
-const { initializeDatabase, weddingOperations, guestOperations, adminOperations } = require('./database');
+// Importar configuração do MongoDB
+const { connectToMongoDB } = require('./config/database');
+
+// Importar operações do MongoDB
+const weddingOperations = require('./operations/weddingOperations');
+const guestOperations = require('./operations/guestOperations');
+const adminOperations = require('./operations/adminOperations');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -226,7 +232,7 @@ app.post('/api/rsvp/:slug', rsvpLimiter, async (req, res) => {
         }
 
         // Verificar se telefone já existe neste casamento
-        const existingGuest = await guestOperations.checkPhoneExists(wedding.id, phone);
+        const existingGuest = await guestOperations.checkPhoneExists(slug, phone);
         if (existingGuest) {
             return res.status(409).json({
                 error: 'Você já confirmou sua presença. Obrigado!',
@@ -236,7 +242,7 @@ app.post('/api/rsvp/:slug', rsvpLimiter, async (req, res) => {
 
         // Inserir novo convidado
         const newGuest = await guestOperations.insertGuest({
-            wedding_id: wedding.id,
+            wedding_slug: slug,
             name: name.trim(),
             adults: adultsNum,
             children: childrenNum,
@@ -333,7 +339,7 @@ app.get('/api/guests/:slug', async (req, res) => {
             return res.status(404).json({ error: 'Casamento não encontrado' });
         }
         
-        const guests = await guestOperations.getGuestsByWedding(wedding.id);
+        const guests = await guestOperations.getGuestsByWedding(slug);
         res.json(guests);
     } catch (error) {
         console.error('Erro ao buscar convidados:', error);
@@ -359,7 +365,7 @@ app.delete('/api/admin/wedding/:slug/guests/:guestId', requireAuth, async (req, 
         }
         
         // Verificar se o convidado pertence ao casamento
-        if (guest.wedding_id !== wedding.id) {
+        if (guest.wedding_slug !== slug) {
             return res.status(403).json({ error: 'Convidado não pertence a este casamento' });
         }
         
@@ -660,8 +666,12 @@ app.get('/api/admin/wedding/:slug/export', requireAuth, async (req, res) => {
 // Inicializar banco de dados e iniciar servidor
 async function startServer() {
     try {
-        await initializeDatabase();
-        console.log('✓ Banco de dados inicializado');
+        await connectToMongoDB();
+        console.log('✓ Banco de dados MongoDB inicializado');
+        
+        // Criar usuário admin padrão se não existir
+        await adminOperations.createDefaultAdmin();
+        console.log('✓ Usuário admin padrão verificado');
         
         app.listen(PORT, () => {
             console.log(`\n🎉 Servidor rodando na porta ${PORT}`);
