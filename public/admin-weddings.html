@@ -1019,7 +1019,7 @@
             if (!confirmed) return;
             
             try {
-                console.log('Excluindo casamento ID:', id);
+                console.log('🗑️  Excluindo casamento ID:', id);
                 
                 const response = await fetch(`/api/admin/weddings/${id}`, {
                     method: 'DELETE',
@@ -1029,12 +1029,13 @@
                 });
                 
                 if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro ao excluir lista');
+                    const errorData = await response.json();
+                    console.error('❌ Erro na resposta:', response.status, errorData);
+                    throw new Error(errorData.error || `Erro ${response.status}: ${response.statusText}`);
                 }
                 
                 const result = await response.json();
-                console.log('Lista excluída com sucesso:', result);
+                console.log('✅ Lista excluída com sucesso:', result);
                 
                 // Mostrar toast de sucesso
                 showToast('Lista excluída com sucesso!', 'success');
@@ -1043,7 +1044,7 @@
                 await loadWeddings();
                 
             } catch (error) {
-                console.error('Erro ao excluir casamento:', error);
+                console.error('❌ Erro ao excluir casamento:', error);
                 showToast(error.message || 'Erro ao excluir lista', 'error');
             }
         }
@@ -1240,53 +1241,6 @@
                     updateColorPicker(colorId, this.value);
                 });
             });
-
-            // Event listener para o formulário de casamento
-            weddingForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                try {
-                    const formData = new FormData(weddingForm);
-                    console.log('Enviando dados do formulário...');
-                    
-                    // Mostrar loading
-                    const saveBtn = document.getElementById('saveBtn');
-                    const saveText = document.getElementById('saveText');
-                    const savingText = document.getElementById('savingText');
-                    
-                    saveBtn.disabled = true;
-                    saveText.classList.add('hidden');
-                    savingText.classList.remove('hidden');
-                    
-                    const result = await saveWedding(formData);
-                    console.log('Resultado do salvamento:', result);
-                    
-                    // Mostrar toast de sucesso
-                    showToast('Lista salva com sucesso!', 'success');
-                    
-                    // Fechar modal
-                    closeModal();
-                    
-                    // Recarregar lista
-                    await loadWeddings();
-                    
-                } catch (error) {
-                    console.error('Erro ao salvar:', error);
-                    showToast(error.message || 'Erro ao salvar lista', 'error');
-                } finally {
-                    // Resetar botão
-                    const saveBtn = document.getElementById('saveBtn');
-                    const saveText = document.getElementById('saveText');
-                    const savingText = document.getElementById('savingText');
-                    
-                    saveBtn.disabled = false;
-                    saveText.classList.remove('hidden');
-                    savingText.classList.add('hidden');
-                }
-            });
-
-            // Carregar casamentos
-            loadWeddings();
         });
     </script>
 </body>

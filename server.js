@@ -441,6 +441,9 @@ app.post('/api/admin/weddings', requireAuth, upload.single('header_image'), asyn
     try {
         const weddingData = req.body;
         
+        console.log('🆕 Criando novo casamento...');
+        console.log('📋 Dados recebidos:', weddingData);
+        
         // Validação básica
         if (!weddingData.bride_name || !weddingData.groom_name) {
             return res.status(400).json({
@@ -460,11 +463,23 @@ app.post('/api/admin/weddings', requireAuth, upload.single('header_image'), asyn
             weddingData.header_image = `/uploads/${req.file.filename}`;
         }
 
+        console.log('🔗 Slug gerado:', weddingData.slug);
+        
         const newWedding = await weddingOperations.createWedding(weddingData);
+        console.log('✅ Casamento criado com sucesso:', newWedding._id);
+        
         res.status(201).json(newWedding);
     } catch (error) {
-        console.error('Erro ao criar casamento:', error);
-        res.status(500).json({ error: 'Erro ao criar casamento' });
+        console.error('❌ Erro ao criar casamento:', error);
+        
+        // Se for erro de slug duplicado, retornar erro específico
+        if (error.message.includes('Já existe um casamento com o slug')) {
+            return res.status(409).json({ 
+                error: 'Já existe uma lista com esses nomes. Tente usar nomes diferentes ou adicionar mais informações.' 
+            });
+        }
+        
+        res.status(500).json({ error: 'Erro ao criar casamento: ' + error.message });
     }
 });
 
@@ -506,15 +521,22 @@ app.delete('/api/admin/weddings/:id', requireAuth, async (req, res) => {
     try {
         const { id } = req.params;
         
+        console.log(`🗑️  Deletando casamento ID: ${id}`);
+        
         // Primeiro, buscar dados do casamento para pegar o caminho da imagem
         const wedding = await weddingOperations.getWeddingById(id);
         
         if (!wedding) {
+            console.log(`❌ Casamento não encontrado: ${id}`);
             return res.status(404).json({ error: 'Casamento não encontrado' });
         }
         
+        console.log(`📋 Casamento encontrado: ${wedding.bride_name} & ${wedding.groom_name}`);
+        
         // Deletar o casamento e convidados do banco de dados
         const result = await weddingOperations.deleteWedding(id);
+        
+        console.log(`✅ Resultado da deleção:`, result);
         
         // Se tinha imagem, tentar deletar o arquivo
         if (wedding.header_image) {
@@ -525,7 +547,7 @@ app.delete('/api/admin/weddings/:id', requireAuth, async (req, res) => {
                     console.log(`✓ Imagem removida: ${wedding.header_image}`);
                 }
             } catch (imageError) {
-                console.warn('Aviso: Não foi possível remover a imagem:', imageError.message);
+                console.warn('⚠️  Aviso: Não foi possível remover a imagem:', imageError.message);
                 // Não falhamos a operação se não conseguir deletar a imagem
             }
         }
@@ -536,8 +558,8 @@ app.delete('/api/admin/weddings/:id', requireAuth, async (req, res) => {
             details: result.message
         });
     } catch (error) {
-        console.error('Erro ao deletar casamento:', error);
-        res.status(500).json({ error: 'Erro ao deletar casamento' });
+        console.error('❌ Erro ao deletar casamento:', error);
+        res.status(500).json({ error: 'Erro ao deletar casamento: ' + error.message });
     }
 });
 

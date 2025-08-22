@@ -40,6 +40,16 @@ const weddingOperations = {
     async createWedding(weddingData) {
         try {
             console.log('🆕 Criando novo casamento...');
+            console.log('📋 Dados recebidos:', weddingData);
+            
+            // Verificar se já existe um casamento com o mesmo slug
+            if (weddingData.slug) {
+                const existingWedding = await Wedding.findBySlugIncludeInactive(weddingData.slug);
+                if (existingWedding) {
+                    throw new Error(`Já existe um casamento com o slug: ${weddingData.slug}`);
+                }
+            }
+            
             const wedding = new Wedding(weddingData);
             await wedding.save();
             console.log(`✅ Casamento criado com sucesso: ${wedding.bride_name} & ${wedding.groom_name}`);
@@ -78,7 +88,7 @@ const weddingOperations = {
         }
     },
 
-    // Deletar casamento
+    // Deletar casamento (soft delete)
     async deleteWedding(id) {
         try {
             console.log(`🗑️  Deletando casamento ID: ${id}`);

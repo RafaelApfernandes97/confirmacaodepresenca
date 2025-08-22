@@ -87,9 +87,10 @@ weddingSchema.methods.generateSlug = function() {
     return `${this.bride_name.toLowerCase().replace(/\s+/g, '-')}-${this.groom_name.toLowerCase().replace(/\s+/g, '-')}-${dateStr}-${timestamp}`;
 };
 
-// Middleware para gerar slug se não fornecido
+// Middleware para gerar slug se não fornecido (APENAS na criação)
 weddingSchema.pre('save', function(next) {
-    if (!this.slug) {
+    // Só gerar slug se for um novo documento E não tiver slug
+    if (this.isNew && !this.slug) {
         this.slug = this.generateSlug();
     }
     next();
@@ -103,6 +104,11 @@ weddingSchema.statics.findActive = function() {
 // Método estático para buscar por slug
 weddingSchema.statics.findBySlug = function(slug) {
     return this.findOne({ slug, is_active: true });
+};
+
+// Método estático para buscar por slug (incluindo inativos)
+weddingSchema.statics.findBySlugIncludeInactive = function(slug) {
+    return this.findOne({ slug });
 };
 
 module.exports = mongoose.model('Wedding', weddingSchema);
