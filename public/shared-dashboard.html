@@ -70,41 +70,42 @@
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
     <header class="gradient-bg shadow-lg">
-        <div class="container mx-auto px-4 py-6">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="bg-white rounded-full p-3">
-                        <i class="fas fa-heart text-2xl text-marsala"></i>
+        <div class="container mx-auto px-4 py-4 sm:py-6">
+            <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="bg-white rounded-full p-2 sm:p-3">
+                        <i class="fas fa-heart text-xl sm:text-2xl text-marsala"></i>
                     </div>
                     <div>
-                        <h1 id="weddingTitle" class="text-2xl font-bold text-white">Carregando...</h1>
-                        <p class="text-pink-100">Dashboard Compartilhado</p>
+                        <h1 id="weddingTitle" class="text-lg sm:text-2xl font-bold text-white">Carregando...</h1>
+                        <p class="text-pink-100 text-sm sm:text-base">Dashboard Compartilhado</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center space-x-4">
+                <!-- Botões em grid responsivo para mobile -->
+                <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:space-x-2 lg:space-x-4">
                     <button 
                         id="refreshBtn"
-                        class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg hover:bg-opacity-30 transition-all duration-300 btn-hover"
+                        class="bg-white bg-opacity-20 text-white px-2 py-2 sm:px-4 rounded-lg hover:bg-opacity-30 transition-all duration-300 btn-hover text-sm sm:text-base"
                         title="Atualizar dados"
                     >
-                        <i class="fas fa-sync-alt mr-2"></i>Atualizar
+                        <i class="fas fa-sync-alt mr-1 sm:mr-2"></i><span class="hidden sm:inline">Atualizar</span>
                     </button>
                     
                     <button 
                         id="exportBtn"
-                        class="btn-gold text-black px-4 py-2 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover font-semibold"
+                        class="btn-gold text-black px-2 py-2 sm:px-4 rounded-lg hover:shadow-lg transition-all duration-300 btn-hover font-semibold text-sm sm:text-base"
                         title="Exportar para CSV"
                     >
-                        <i class="fas fa-download mr-2"></i>Exportar
+                        <i class="fas fa-download mr-1 sm:mr-2"></i><span class="hidden sm:inline">Exportar</span>
                     </button>
 
                     <button 
                         id="shareBtn"
-                        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all duration-300 btn-hover"
+                        class="bg-blue-500 text-white px-2 py-2 sm:px-4 rounded-lg hover:bg-blue-600 transition-all duration-300 btn-hover text-sm sm:text-base"
                         title="Compartilhar Dashboard"
                     >
-                        <i class="fas fa-share-alt mr-2"></i>Compartilhar
+                        <i class="fas fa-share-alt mr-1 sm:mr-2"></i><span class="hidden sm:inline">Compartilhar</span>
                     </button>
                 </div>
             </div>
@@ -112,87 +113,87 @@
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main class="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <!-- Loading State -->
-        <div id="loading" class="text-center py-12">
-            <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
-            <p class="text-gray-600">Carregando dados...</p>
+        <div id="loading" class="text-center py-8 sm:py-12">
+            <i class="fas fa-spinner fa-spin text-3xl sm:text-4xl text-blue-500 mb-4"></i>
+            <p class="text-gray-600 text-sm sm:text-base">Carregando dados...</p>
         </div>
 
         <!-- Dashboard Content -->
         <div id="dashboard" class="hidden">
             <!-- Estatísticas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6 mb-6 sm:mb-8">
                 <!-- Total de Confirmações -->
-                <div class="stat-card text-white rounded-xl p-6 card-shadow fade-in">
+                <div class="stat-card text-white rounded-xl p-3 sm:p-6 card-shadow fade-in">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-100 text-sm font-medium">Total de Confirmações</p>
-                            <p id="totalConfirmations" class="text-3xl font-bold">0</p>
+                            <p class="text-blue-100 text-xs sm:text-sm font-medium">Total de Confirmações</p>
+                            <p id="totalConfirmations" class="text-xl sm:text-3xl font-bold">0</p>
                         </div>
-                        <i class="fas fa-users text-4xl text-blue-200"></i>
+                        <i class="fas fa-users text-2xl sm:text-4xl text-blue-200"></i>
                     </div>
                 </div>
 
                 <!-- Total de Adultos -->
-                <div class="stat-card-green text-white rounded-xl p-6 card-shadow fade-in">
+                <div class="stat-card-green text-white rounded-xl p-3 sm:p-6 card-shadow fade-in">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-green-100 text-sm font-medium">Total de Adultos</p>
-                            <p id="totalAdults" class="text-3xl font-bold">0</p>
+                            <p class="text-green-100 text-xs sm:text-sm font-medium">Total de Adultos</p>
+                            <p id="totalAdults" class="text-xl sm:text-3xl font-bold">0</p>
                         </div>
-                        <i class="fas fa-user text-4xl text-green-200"></i>
+                        <i class="fas fa-user text-2xl sm:text-4xl text-green-200"></i>
                     </div>
                 </div>
 
-                <!-- Total de Crianças -->
-                <div class="stat-card-blue text-white rounded-xl p-6 card-shadow fade-in">
+                <!-- Total de Crianças Maiores de 6 anos -->
+                <div class="stat-card-blue text-white rounded-xl p-3 sm:p-6 card-shadow fade-in">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-blue-100 text-sm font-medium">Total de Crianças</p>
-                            <p id="totalChildren" class="text-3xl font-bold">0</p>
+                            <p class="text-blue-100 text-xs sm:text-sm font-medium">Crianças > 6 anos</p>
+                            <p id="totalChildren" class="text-xl sm:text-3xl font-bold">0</p>
                         </div>
-                        <i class="fas fa-child text-4xl text-blue-200"></i>
+                        <i class="fas fa-child text-2xl sm:text-4xl text-blue-200"></i>
                     </div>
                 </div>
 
                 <!-- Total de Crianças Menores de 6 anos -->
-                <div class="stat-card-purple text-white rounded-xl p-6 card-shadow fade-in">
+                <div class="stat-card-purple text-white rounded-xl p-3 sm:p-6 card-shadow fade-in">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-purple-100 text-sm font-medium">Crianças < 6 anos</p>
-                            <p id="totalChildrenUnder6" class="text-3xl font-bold">0</p>
+                            <p class="text-purple-100 text-xs sm:text-sm font-medium">Crianças < 6 anos</p>
+                            <p id="totalChildrenUnder6" class="text-xl sm:text-3xl font-bold">0</p>
                         </div>
                         <i class="fas fa-baby text-4xl text-purple-200"></i>
                     </div>
                 </div>
 
                 <!-- Total Geral -->
-                <div class="stat-card-gold text-black rounded-xl p-6 card-shadow fade-in">
+                <div class="stat-card-gold text-black rounded-xl p-3 sm:p-6 card-shadow fade-in col-span-2 sm:col-span-1">
                     <div class="flex items-center justify-between">
                         <div>
-                            <p class="text-yellow-800 text-sm font-medium">Total de Pessoas</p>
-                            <p id="totalPeople" class="text-3xl font-bold">0</p>
+                            <p class="text-yellow-800 text-xs sm:text-sm font-medium">Total de Pessoas</p>
+                            <p id="totalPeople" class="text-xl sm:text-3xl font-bold">0</p>
                         </div>
-                        <i class="fas fa-heart text-4xl text-yellow-700"></i>
+                        <i class="fas fa-heart text-2xl sm:text-4xl text-yellow-700"></i>
                     </div>
                 </div>
             </div>
 
             <!-- Lista de Convidados -->
-            <div class="bg-white rounded-xl shadow-lg p-6 fade-in">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-800">
+            <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 fade-in">
+                <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mb-6">
+                    <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
                         <i class="fas fa-list mr-2 text-blue-500"></i>Lista de Convidados
                     </h2>
                     
                     <!-- Filtro de busca -->
-                    <div class="relative">
+                    <div class="relative w-full sm:w-auto">
                         <input 
                             type="text" 
                             id="searchInput"
                             placeholder="Buscar por nome..."
-                            class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
@@ -200,17 +201,17 @@
 
                 <!-- Tabela Responsiva -->
                 <div class="overflow-x-auto">
-                    <table class="w-full table-auto">
+                    <table class="w-full table-auto min-w-full">
                         <thead>
-                            <tr class="bg-gray-50 text-gray-700 text-sm font-semibold">
-                                <th class="px-4 py-3 text-left rounded-l-lg">ID</th>
-                                <th class="px-4 py-3 text-left">Responsável</th>
-                                <th class="px-4 py-3 text-left">Detalhes</th>
-                                <th class="px-4 py-3 text-center">Adultos</th>
-                                <th class="px-4 py-3 text-center">Crianças</th>
-                                <th class="px-4 py-3 text-center">Total</th>
-                                <th class="px-4 py-3 text-left">Telefone</th>
-                                <th class="px-4 py-3 text-left rounded-r-lg">Data/Hora</th>
+                            <tr class="bg-gray-50 text-gray-700 text-xs sm:text-sm font-semibold">
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left rounded-l-lg">ID</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left">Responsável</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left hidden sm:table-cell">Detalhes</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-center">Adultos</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-center">Crianças</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-center">Total</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left hidden sm:table-cell">Telefone</th>
+                                <th class="px-2 sm:px-4 py-2 sm:py-3 text-left rounded-r-lg hidden lg:table-cell">Data/Hora</th>
                             </tr>
                         </thead>
                         <tbody id="guestsTableBody">
@@ -220,16 +221,16 @@
                 </div>
 
                 <!-- Paginação -->
-                <div class="flex items-center justify-between mt-6">
-                    <div class="text-sm text-gray-700">
+                <div class="flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0 mt-6">
+                    <div class="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                         Mostrando <span id="showingStart">1</span> a <span id="showingEnd">10</span> de <span id="totalGuests">0</span> convidados
                     </div>
-                    <div class="flex space-x-2">
-                        <button id="prevPage" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <div class="flex justify-center space-x-2">
+                        <button id="prevPage" class="px-2 sm:px-3 py-2 text-xs sm:text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                             <i class="fas fa-chevron-left"></i>
                         </button>
-                        <span id="currentPage" class="px-3 py-2 text-sm bg-blue-500 text-white rounded-lg">1</span>
-                        <button id="nextPage" class="px-3 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        <span id="currentPage" class="px-2 sm:px-3 py-2 text-xs sm:text-sm bg-blue-500 text-white rounded-lg">1</span>
+                        <button id="nextPage" class="px-2 sm:px-3 py-2 text-xs sm:text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                             <i class="fas fa-chevron-right"></i>
                         </button>
                     </div>
@@ -240,9 +241,9 @@
         <!-- Modal de Compartilhamento -->
         <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
             <div class="flex items-center justify-center min-h-screen p-4">
-                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-4 sm:p-6">
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-xl font-bold text-gray-800">
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800">
                             <i class="fas fa-share-alt mr-2 text-blue-500"></i>Compartilhar Dashboard
                         </h3>
                         <button id="closeShareModal" class="text-gray-400 hover:text-gray-600">
@@ -250,35 +251,35 @@
                         </button>
                     </div>
                     
-                    <p class="text-gray-600 mb-4">
+                    <p class="text-gray-600 mb-4 text-sm sm:text-base">
                         Compartilhe este link com os noivos para que eles possam acompanhar as confirmações:
                     </p>
                     
-                    <div class="flex items-center space-x-2 mb-4">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
                         <input 
                             type="text" 
                             id="shareLink" 
                             readonly
-                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700"
+                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700 text-sm"
                         >
                         <button 
                             id="copyLinkBtn"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                         >
                             <i class="fas fa-copy mr-2"></i>Copiar
                         </button>
                     </div>
                     
-                    <div class="flex space-x-2">
+                    <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                         <button 
                             id="whatsappShare"
-                            class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                            class="flex-1 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
                         >
                             <i class="fab fa-whatsapp mr-2"></i>WhatsApp
                         </button>
                         <button 
                             id="emailShare"
-                            class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                         >
                             <i class="fas fa-envelope mr-2"></i>Email
                         </button>

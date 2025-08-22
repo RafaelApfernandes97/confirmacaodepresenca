@@ -596,17 +596,61 @@ const guestOperations = {
     // Buscar estatísticas de um casamento específico
     getStatsByWedding: (weddingId) => {
         return new Promise((resolve, reject) => {
-            db.get(
-                `SELECT 
-                    COUNT(*) as total_confirmations,
-                    SUM(adults) as total_adults,
-                    SUM(children) as total_children,
-                    SUM(adults + children) as total_people
-                FROM guests WHERE wedding_id = ?`,
+            db.all(
+                'SELECT children_details FROM guests WHERE wedding_id = ? AND children_details IS NOT NULL',
                 [weddingId],
-                (err, row) => {
-                    if (err) reject(err);
-                    else resolve(row);
+                (err, rows) => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    
+                    // Calcular estatísticas das crianças por faixa etária
+                    let totalChildrenOver6 = 0;
+                    let totalChildrenUnder6 = 0;
+                    
+                    rows.forEach(row => {
+                        if (row.children_details) {
+                            try {
+                                const childrenDetails = JSON.parse(row.children_details);
+                                childrenDetails.forEach(child => {
+                                    if (child.over6) {
+                                        totalChildrenOver6++;
+                                    } else {
+                                        totalChildrenUnder6++;
+                                    }
+                                });
+                            } catch (e) {
+                                // Ignorar erros de parsing
+                            }
+                        }
+                    });
+                    
+                    // Buscar estatísticas básicas
+                    db.get(
+                        `SELECT 
+                            COUNT(*) as total_confirmations,
+                            SUM(adults) as total_adults,
+                            SUM(children) as total_children,
+                            SUM(adults + children) as total_people
+                        FROM guests WHERE wedding_id = ?`,
+                        [weddingId],
+                        (err, basicStats) => {
+                            if (err) {
+                                reject(err);
+                                return;
+                            }
+                            
+                            // Combinar estatísticas básicas com as calculadas
+                            const stats = {
+                                ...basicStats,
+                                total_children_over6: totalChildrenOver6,
+                                total_children_under6: totalChildrenUnder6
+                            };
+                            
+                            resolve(stats);
+                        }
+                    );
                 }
             );
         });

@@ -157,12 +157,12 @@
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen py-8 px-4 relative">
-    <div class="text-center mb-8">
-        <h4 class="text-2xl font-bold text-black mb-3 clean-text">Confirmação de Presença</h4>
+<body class="gradient-bg min-h-screen py-4 sm:py-8 px-3 sm:px-4 relative">
+    <div class="text-center mb-6 sm:mb-8">
+        <h4 class="text-xl sm:text-2xl font-bold text-black mb-3 clean-text">Confirmação de Presença</h4>
     </div>
     
-    <div class="w-full max-w-4xl mx-auto z-10 flow-layout">
+    <div class="w-full max-w-4xl mx-auto z-10 flow-layout px-3 sm:px-4">
         <!-- Header com imagem personalizada -->
         <div id="headerImageContainer" class="clean-section" style="display: none;">
             <div class="relative">
@@ -170,17 +170,17 @@
                     id="headerImage" 
                     src="" 
                     alt="Cabeçalho do casamento"
-                    class="w-full h-80 object-contain rounded-2xl"
+                    class="w-full h-48 sm:h-80 object-contain rounded-xl sm:rounded-2xl"
                     style="display: none;"
                 >
                 
                 <!-- Botão de refresh para cores -->
                 <button 
                     onclick="forceRefreshColors()"
-                    class="absolute top-4 right-4 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 hover:text-gray-900 p-3 rounded-full shadow-lg transition-all duration-300"
+                    class="absolute top-2 right-2 sm:top-4 sm:right-4 bg-white bg-opacity-90 hover:bg-opacity-100 text-gray-700 hover:text-gray-900 p-2 sm:p-3 rounded-full shadow-lg transition-all duration-300"
                     title="Atualizar cores"
                 >
-                    <i class="fas fa-sync-alt"></i>
+                    <i class="fas fa-sync-alt text-sm sm:text-base"></i>
                 </button>
             </div>
         </div>
@@ -194,29 +194,29 @@
         
         <!-- Fallback caso a imagem não carregue -->
         <div id="fallbackHeader" style="display: none;" class="text-center clean-section fade-in">
-            <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full mb-6 shadow-lg">
-                <i class="fas fa-heart text-4xl text-black"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full mb-4 sm:mb-6 shadow-lg">
+                <i class="fas fa-heart text-2xl sm:text-4xl text-black"></i>
             </div>
-            <h1 id="coupleNamesFallback" class="text-5xl font-bold text-black mb-4 font-script clean-text">
+            <h1 id="coupleNamesFallback" class="text-3xl sm:text-5xl font-bold text-black mb-4 font-script clean-text">
                 Carregando...
             </h1>
-            <p class="text-black text-lg opacity-90 clean-text">Tem a honra de convidá-los para o nosso casamento</p>
+            <p class="text-black text-base sm:text-lg opacity-90 clean-text">Tem a honra de convidá-los para o nosso casamento</p>
         </div>
 
         <!-- Loading Wedding Info -->
-        <div id="loadingWedding" class="text-center py-16 clean-section">
-            <i class="fas fa-spinner fa-spin text-5xl text-black mb-6"></i>
-            <p class="text-black text-lg opacity-90 clean-text">Carregando informações do casamento...</p>
+        <div id="loadingWedding" class="text-center py-8 sm:py-16 clean-section">
+            <i class="fas fa-spinner fa-spin text-3xl sm:text-5xl text-black mb-4 sm:mb-6"></i>
+            <p class="text-black text-base sm:text-lg opacity-90 clean-text">Carregando informações do casamento...</p>
         </div>
 
         <!-- Formulário RSVP -->
         <div id="rsvp-form" class="clean-section fade-in">
-            <div class="text-center mb-8">
+            <div class="text-center mb-6 sm:mb-8">
                 
-                <p class="text-black text-lg opacity-90 clean-text">Por favor, confirme sua presença preenchendo os dados abaixo</p>
+                <p class="text-black text-base sm:text-lg opacity-90 clean-text">Por favor, confirme sua presença preenchendo os dados abaixo</p>
             </div>
 
-            <form id="confirmationForm" class="space-y-8">
+            <form id="confirmationForm" class="space-y-6 sm:space-y-8">
                 <!-- Nome Completo -->
                 <div>
                     <label for="name" class="block text-sm font-medium text-black mb-3 clean-text">
@@ -228,7 +228,7 @@
                         name="name" 
                         required
                         placeholder="Seu nome completo"
-                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                        class="w-full px-3 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
                     >
                 </div>
 
@@ -241,22 +241,21 @@
                         id="adults" 
                         name="adults" 
                         required
-                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                        class="w-full px-3 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
                     >
-                        <option value="">Selecione</option>
-                        <option value="1">Somente eu</option>
-                        <option value="2">2 adultos</option>
-                        <option value="3">3 adultos</option>
-                        <option value="4">4 adultos</option>
-                        <option value="5">5 adultos</option>
-                        <option value="6">6+ adultos</option>
+                        <option value="1" selected>Somente eu</option>
+                        <option value="2">+1 Adulto</option>
+                        <option value="3">+2 Adultos</option>
+                        <option value="4">+3 Adultos</option>
+                        <option value="5">+4 Adultos</option>
+                        <option value="6">+5 Adultos</option>
                     </select>
                 </div>
 
                 <!-- Nomes dos Adultos (dinâmico) -->
                 <div id="adultsNamesContainer" class="hidden space-y-4">
                     <label class="block text-sm font-medium text-black mb-3 clean-text">
-                        <i class="fas fa-user-edit mr-2 text-black opacity-80"></i>Nomes dos Adultos
+                        <i class="fas fa-user-edit mr-2 text-black opacity-80"></i>Nomes dos Adultos Adicionais
                     </label>
                     <div id="adultsNamesList"></div>
                 </div>
@@ -270,7 +269,7 @@
                         id="children" 
                         name="children" 
                         required
-                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                        class="w-full px-3 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
                     >
                         <option value="0">Nenhuma criança</option>
                         <option value="1">1 criança</option>
@@ -302,7 +301,7 @@
                         placeholder="Ex: 9999"
                         maxlength="4"
                         pattern="[0-9]{4}"
-                        class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                        class="w-full px-3 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
                     >
                     <p class="text-xs text-black opacity-70 mt-2 clean-text">Digite apenas os 4 últimos dígitos do seu telefone</p>
                 </div>
@@ -311,7 +310,7 @@
                 <button 
                     type="submit" 
                     id="submitBtn"
-                    class="w-full btn-marsala font-semibold py-5 px-8 rounded-xl transition-all duration-300 btn-hover focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-lg shadow-lg mt-4"
+                    class="w-full btn-marsala font-semibold py-4 sm:py-5 px-6 sm:px-8 rounded-lg sm:rounded-xl transition-all duration-300 btn-hover focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-base sm:text-lg shadow-lg mt-4"
                 >
                     <span id="submitText">
                         <i class="fas fa-heart mr-2"></i>Confirmar Presença
@@ -325,23 +324,23 @@
 
         <!-- Mensagem de Sucesso -->
         <div id="success-message" class="hidden clean-section text-center">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-green-500 bg-opacity-20 rounded-full mb-6">
-                <i class="fas fa-check text-3xl text-green-400"></i>
+            <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-green-500 bg-opacity-20 rounded-full mb-4 sm:mb-6">
+                <i class="fas fa-check text-2xl sm:text-3xl text-green-400"></i>
             </div>
-            <h2 class="text-3xl font-bold text-black mb-3 clean-text">Presença Confirmada!</h2>
-            <p class="text-black mb-6 text-lg opacity-90 clean-text">Obrigado por confirmar sua presença. Aguardamos vocês com muito carinho!</p>
-            <div id="confirmation-details" class="bg-white bg-opacity-10 backdrop-blur-sm rounded-xl p-6 text-sm text-black">
+            <h2 class="text-2xl sm:text-3xl font-bold text-black mb-3 clean-text">Presença Confirmada!</h2>
+            <p class="text-black mb-6 text-base sm:text-lg opacity-90 clean-text">Obrigado por confirmar sua presença. Aguardamos vocês com muito carinho!</p>
+            <div id="confirmation-details" class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg sm:rounded-xl p-4 sm:p-6 text-sm text-black">
                 <!-- Detalhes da confirmação serão inseridos aqui -->
             </div>
         </div>
 
         <!-- Mensagem de Erro -->
-        <div id="error-message" class="hidden bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-400 border-opacity-30 rounded-2xl p-6 mt-6">
+        <div id="error-message" class="hidden bg-red-500 bg-opacity-20 backdrop-blur-sm border border-red-400 border-opacity-30 rounded-xl sm:rounded-2xl p-4 sm:p-6 mt-6">
             <div class="flex items-center">
-                <i class="fas fa-exclamation-triangle text-red-400 mr-3"></i>
+                <i class="fas fa-exclamation-triangle text-red-400 mr-3 text-lg sm:text-xl"></i>
                 <div>
-                    <h3 class="text-black font-semibold clean-text">Ops! Algo deu errado</h3>
-                    <p id="error-text" class="text-black text-sm mt-1 opacity-90 clean-text"></p>
+                    <h3 class="text-black font-semibold clean-text text-sm sm:text-base">Ops! Algo deu errado</h3>
+                    <p id="error-text" class="text-black text-xs sm:text-sm mt-1 opacity-90 clean-text"></p>
                 </div>
             </div>
         </div>
@@ -349,32 +348,32 @@
 
         
         <!-- Rodapé com Localização -->
-        <div class="mt-12">
+        <div class="mt-8 sm:mt-12">
             <!-- Endereço -->
             <div id="venueSectionFooter" class="hidden text-center">
-                <div id="venueAddressFooter" class="text-black text-sm mb-8 opacity-90 clean-text"></div>
+                <div id="venueAddressFooter" class="text-black text-xs sm:text-sm mb-6 sm:mb-8 opacity-90 clean-text"></div>
             </div>
             
             <!-- Mapa Incorporado -->
             <div id="mapContainerFooter" class="hidden">
-                <h4 class="text-lg font-medium text-black mb-6 text-center clean-text">
+                <h4 class="text-base sm:text-lg font-medium text-black mb-4 sm:mb-6 text-center clean-text">
                     <i class="fas fa-map mr-2"></i>Localização
                 </h4>
                 <div class="modern-map">
                     <iframe
                         id="googleMapFooter"
                         src=""
-                        class="w-full h-64 border-0"
+                        class="w-full h-48 sm:h-64 border-0"
                         style="border:0;"
                         allowfullscreen=""
                         loading="lazy"
                         referrerpolicy="no-referrer-when-downgrade">
                     </iframe>
                 </div>
-                <div class="flex justify-center mt-8">
+                <div class="flex justify-center mt-6 sm:mt-8">
                     <button 
                         onclick="openInMaps()" 
-                        class="px-8 py-4 clean-button text-base rounded-xl transition-colors font-medium"
+                        class="px-6 sm:px-8 py-3 sm:py-4 clean-button text-sm sm:text-base rounded-lg sm:rounded-xl transition-colors font-medium"
                     >
                         <i class="fas fa-directions mr-2"></i>Como Chegar
                     </button>
@@ -763,7 +762,8 @@
                     <div>
                         <p><strong>Adultos (${guestConfirmation.adults}):</strong></p>
                         <ul class="list-disc list-inside ml-4 text-sm">
-                            ${guestConfirmation.adults_names.map(name => `<li>${name}</li>`).join('')}
+                            <li><strong>Responsável:</strong> ${guestConfirmation.adults_names[0]}</li>
+                            ${guestConfirmation.adults_names.slice(1).map(name => `<li>${name}</li>`).join('')}
                         </ul>
                     </div>
                 `;
@@ -805,7 +805,12 @@
                 adultsNamesContainer.classList.remove('hidden');
                 adultsNamesContainer.classList.add('fade-in');
                 
-                for (let i = 1; i <= count; i++) {
+                // Para "+1 Adulto" (count = 2), mostrar 1 campo adicional
+                // Para "+2 Adultos" (count = 3), mostrar 2 campos adicionais
+                // E assim por diante...
+                const additionalAdults = count - 1;
+                
+                for (let i = 1; i <= additionalAdults; i++) {
                     const div = document.createElement('div');
                     div.innerHTML = `
                         <input 
@@ -813,13 +818,14 @@
                             id="adult_${i}" 
                             name="adult_${i}" 
                             required
-                            placeholder="Nome do ${i}º adulto"
-                            class="w-full px-5 py-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
+                            placeholder="Nome do ${i}º adulto adicional"
+                            class="w-full px-3 sm:px-5 py-3 sm:py-4 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 input-focus bg-white bg-opacity-90 backdrop-blur-sm"
                         >
                     `;
                     adultsNamesList.appendChild(div);
                 }
             } else {
+                // Esconder campos quando for "Somente eu" (count = 1)
                 adultsNamesContainer.classList.add('hidden');
             }
         }
@@ -834,16 +840,16 @@
                 
                 for (let i = 1; i <= count; i++) {
                     const div = document.createElement('div');
-                    div.className = 'bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-xl space-y-5 border border-white border-opacity-20';
+                    div.className = 'bg-white bg-opacity-10 backdrop-blur-sm p-4 sm:p-6 rounded-lg sm:rounded-xl space-y-4 sm:space-y-5 border border-white border-opacity-20';
                     div.innerHTML = `
-                        <h4 class="font-semibold text-black text-lg mb-3 clean-text">${i}ª Criança</h4>
+                        <h4 class="font-semibold text-black text-base sm:text-lg mb-3 clean-text">${i}ª Criança</h4>
                         <input 
                             type="text" 
                             id="child_name_${i}" 
                             name="child_name_${i}" 
                             required
                             placeholder="Nome da criança"
-                            class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white bg-opacity-90 backdrop-blur-sm"
+                            class="w-full px-3 sm:px-4 py-3 border border-gray-200 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300 bg-white bg-opacity-90 backdrop-blur-sm"
                         >
                         <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                             <label class="flex items-center p-3 bg-white bg-opacity-10 rounded-lg hover:bg-white hover:bg-opacity-20 transition-colors cursor-pointer">
@@ -931,7 +937,8 @@
                     <div>
                         <p><strong>Adultos (${data.guest.adults}):</strong></p>
                         <ul class="list-disc list-inside ml-4 text-sm">
-                            ${data.guest.adults_names.map(name => `<li>${name}</li>`).join('')}
+                            <li><strong>Responsável:</strong> ${data.guest.adults_names[0]}</li>
+                            ${data.guest.adults_names.slice(1).map(name => `<li>${name}</li>`).join('')}
                         </ul>
                     </div>
                 `;
@@ -995,8 +1002,12 @@
                 // Se for "Somente eu", usar o nome do responsável
                 adultsNames.push(formData.get('name').trim());
             } else if (adultsCount > 1) {
-                // Se for mais de 1 adulto, coletar os nomes dos campos adicionais
-                for (let i = 1; i <= adultsCount; i++) {
+                // Se for mais de 1 adulto, incluir o responsável + os adicionais
+                adultsNames.push(formData.get('name').trim()); // Sempre incluir o responsável
+                
+                // Coletar os nomes dos adultos adicionais
+                const additionalAdults = adultsCount - 1;
+                for (let i = 1; i <= additionalAdults; i++) {
                     const name = formData.get(`adult_${i}`);
                     if (name && name.trim()) {
                         adultsNames.push(name.trim());
@@ -1040,10 +1051,13 @@
             }
 
             // Validar se todos os nomes dos adultos foram preenchidos
-            if (data.adults > 1 && data.adults_names.length !== data.adults) {
-                showError('Por favor, preencha o nome de todos os adultos.');
-                resetButton();
-                return;
+            if (data.adults > 1) {
+                const expectedNames = data.adults; // Total de adultos (responsável + adicionais)
+                if (data.adults_names.length !== expectedNames) {
+                    showError('Por favor, preencha o nome de todos os adultos adicionais.');
+                    resetButton();
+                    return;
+                }
             }
 
             // Validar se todos os detalhes das crianças foram preenchidos
