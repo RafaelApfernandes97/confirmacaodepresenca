@@ -39,6 +39,9 @@
             background: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
             color: #333;
         }
+        .stat-card-purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
         .fade-in {
             animation: fadeIn 0.6s ease-in;
         }
@@ -119,7 +122,7 @@
         <!-- Dashboard Content -->
         <div id="dashboard" class="hidden">
             <!-- Estatísticas -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
                 <!-- Total de Confirmações -->
                 <div class="stat-card text-white rounded-xl p-6 card-shadow fade-in">
                     <div class="flex items-center justify-between">
@@ -150,6 +153,17 @@
                             <p id="totalChildren" class="text-3xl font-bold">0</p>
                         </div>
                         <i class="fas fa-child text-4xl text-blue-200"></i>
+                    </div>
+                </div>
+
+                <!-- Total de Crianças Menores de 6 anos -->
+                <div class="stat-card-purple text-white rounded-xl p-6 card-shadow fade-in">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm font-medium">Crianças < 6 anos</p>
+                            <p id="totalChildrenUnder6" class="text-3xl font-bold">0</p>
+                        </div>
+                        <i class="fas fa-baby text-4xl text-purple-200"></i>
                     </div>
                 </div>
 
@@ -289,6 +303,7 @@
         const totalConfirmations = document.getElementById('totalConfirmations');
         const totalAdults = document.getElementById('totalAdults');
         const totalChildren = document.getElementById('totalChildren');
+        const totalChildrenUnder6 = document.getElementById('totalChildrenUnder6');
         const totalPeople = document.getElementById('totalPeople');
         const guestsTableBody = document.getElementById('guestsTableBody');
         const searchInput = document.getElementById('searchInput');
@@ -361,11 +376,18 @@
             const total = allGuests.length;
             const adults = allGuests.reduce((sum, guest) => sum + guest.adults, 0);
             const children = allGuests.reduce((sum, guest) => sum + guest.children, 0);
+            const childrenUnder6 = allGuests.reduce((sum, guest) => {
+                if (guest.children_details && guest.children_details.length > 0) {
+                    return sum + guest.children_details.filter(child => !child.over6).length;
+                }
+                return sum;
+            }, 0);
             const people = adults + children;
 
             totalConfirmations.textContent = total;
             totalAdults.textContent = adults;
             totalChildren.textContent = children;
+            totalChildrenUnder6.textContent = childrenUnder6;
             totalPeople.textContent = people;
         }
 
