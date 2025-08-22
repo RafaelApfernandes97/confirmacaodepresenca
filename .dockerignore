@@ -8,5 +8,11 @@ README.md
 coverage
 .DS_Store
 *.log
+*.db
+data/
+wedding_rsvp.db
 uploads/*
 !uploads/.gitkeep
+exports/*.csv
+*.sqlite
+*.sqlite3

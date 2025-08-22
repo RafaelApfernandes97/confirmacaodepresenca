@@ -3,7 +3,7 @@ version: '3.8'
 services:
   wedding-rsvp:
     build: .
-    container_name: wedding-rsvp-app
+    container_name: wedding-rsvp-easypanel
     ports:
       - "3000:3000"
     environment:
@@ -11,12 +11,12 @@ services:
       - PORT=3000
       - SESSION_SECRET=${SESSION_SECRET:-default-secret-change-in-production}
     volumes:
-      # Volume nomeado para o banco de dados - mais robusto que bind mount
-      - wedding_rsvp_data:/app/wedding_rsvp.db
-      # Volume nomeado para uploads
-      - wedding_rsvp_uploads:/app/public/uploads
-      # Volume nomeado para logs
-      - wedding_rsvp_logs:/app/logs
+      # Volume absoluto para o banco de dados - ESSENCIAL para persistência
+      - /var/lib/easypanel/data/wedding-rsvp/database:/app/wedding_rsvp.db
+      # Volume absoluto para uploads
+      - /var/lib/easypanel/data/wedding-rsvp/uploads:/app/public/uploads
+      # Volume absoluto para logs
+      - /var/lib/easypanel/data/wedding-rsvp/logs:/app/logs
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
@@ -38,19 +38,5 @@ services:
           memory: 256M
           cpus: '0.25'
 
-# Volumes nomeados para persistência
-volumes:
-  wedding_rsvp_data:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD:-.}/data/wedding_rsvp.db
-  wedding_rsvp_uploads:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${PWD:-.}/data/uploads
-  wedding_rsvp_logs:
-    driver: local
+# IMPORTANTE: No Easypanel, certifique-se de que estes diretórios existam
+# e tenham as permissões corretas antes de fazer o deploy
