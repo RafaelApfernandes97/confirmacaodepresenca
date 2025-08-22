@@ -582,7 +582,7 @@
             emptyState.classList.add('hidden');
             
             console.log('Renderizando cards com casamentos:', weddings.map(w => ({
-                id: w.id,
+                id: w._id, // Corrigido: usar _id em vez de id
                 names: `${w.bride_name} & ${w.groom_name}`,
                 colors: {
                     background: w.background_color,
@@ -646,7 +646,7 @@
                             </button>
                             
                             <button 
-                                onclick="editWedding(${wedding.id})"
+                                onclick="editWedding('${wedding._id}')"
                                 class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all duration-300 btn-hover text-sm"
                                 title="Editar"
                             >
@@ -654,7 +654,7 @@
                             </button>
                             
                             <button 
-                                onclick="deleteWedding(${wedding.id}, '${wedding.bride_name} & ${wedding.groom_name}')"
+                                onclick="deleteWedding('${wedding._id}', '${wedding.bride_name} & ${wedding.groom_name}')"
                                 class="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all duration-300 btn-hover text-sm"
                                 title="Excluir Lista"
                             >
@@ -723,17 +723,25 @@
         }
 
         function editWedding(id) {
+            // Validar ID
+            if (!id || id === 'undefined' || id === 'null') {
+                console.error('❌ ID inválido recebido para edição:', id);
+                showToast('Erro: ID inválido para edição', 'error');
+                return;
+            }
+            
             console.log('editWedding chamado com ID:', id);
-            const wedding = currentWeddings.find(w => w.id === id);
+            const wedding = currentWeddings.find(w => w._id === id); // Corrigido: usar _id
             console.log('Wedding encontrado:', wedding);
             if (!wedding) {
                 console.error('Wedding não encontrado para ID:', id);
+                showToast('Erro: Casamento não encontrado', 'error');
                 return;
             }
 
             document.getElementById('modalTitle').textContent = 'Editar Lista de Casamento';
             console.log('Preenchendo campos básicos...');
-            document.getElementById('weddingId').value = wedding.id;
+            document.getElementById('weddingId').value = wedding._id; // Corrigido: usar _id
             document.getElementById('brideName').value = wedding.bride_name;
             document.getElementById('groomName').value = wedding.groom_name;
             document.getElementById('weddingDate').value = wedding.wedding_date || '';
@@ -1013,14 +1021,21 @@
 
         // Função para deletar casamento
         async function deleteWedding(id, coupleName) {
+            // Validar ID
+            if (!id || id === 'undefined' || id === 'null') {
+                console.error('❌ ID inválido recebido:', id);
+                showToast('Erro: ID inválido para exclusão', 'error');
+                return;
+            }
+            
+            console.log('🗑️  Excluindo casamento ID:', id);
+            
             // Confirmar exclusão
             const confirmed = confirm(`Tem certeza que deseja excluir a lista de "${coupleName}"?\n\nEsta ação não pode ser desfeita e todos os dados dos convidados também serão removidos.`);
             
             if (!confirmed) return;
             
             try {
-                console.log('🗑️  Excluindo casamento ID:', id);
-                
                 const response = await fetch(`/api/admin/weddings/${id}`, {
                     method: 'DELETE',
                     headers: {
