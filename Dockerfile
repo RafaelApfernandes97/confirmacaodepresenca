@@ -23,23 +23,27 @@ COPY exports/ ./exports/
 RUN mkdir -p public/uploads
 RUN mkdir -p data
 
-# Criar script de inicialização
-RUN echo '#!/bin/sh\n\
-if [ ! -f /app/wedding_rsvp.db ]; then\n\
-    echo "Database not found, creating new one..."\n\
-    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS weddings (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, location TEXT NOT NULL, description TEXT, slug TEXT UNIQUE NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"\n\
-    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS guests (id INTEGER PRIMARY KEY AUTOINCREMENT, wedding_slug TEXT NOT NULL, name TEXT NOT NULL, adults INTEGER NOT NULL, adults_names TEXT, children INTEGER NOT NULL, children_details TEXT, confirmed_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (wedding_slug) REFERENCES weddings (slug));"\n\
-    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS admin_users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"\n\
-    echo "Database created successfully!"\n\
-else\n\
-    echo "Database found, using existing one..."\n\
-fi\n\
-\n\
-echo "Starting application..."\n\
-exec node server.js' > /app/start.sh
+# Criar script de inicialização de forma mais robusta
+RUN echo '#!/bin/sh' > /app/start.sh && \
+    echo 'echo "Checking database..."' >> /app/start.sh && \
+    echo 'if [ ! -f /app/wedding_rsvp.db ]; then' >> /app/start.sh && \
+    echo '    echo "Database not found, creating new one..."' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS weddings (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, date TEXT NOT NULL, time TEXT NOT NULL, location TEXT NOT NULL, description TEXT, slug TEXT UNIQUE NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS guests (id INTEGER PRIMARY KEY AUTOINCREMENT, wedding_slug TEXT NOT NULL, name TEXT NOT NULL, adults INTEGER NOT NULL, adults_names TEXT, children INTEGER NOT NULL, children_details TEXT, confirmed_at DATETIME DEFAULT CURRENT_TIMESTAMP, FOREIGN KEY (wedding_slug) REFERENCES weddings (slug));"' >> /app/start.sh && \
+    echo '    sqlite3 /app/wedding_rsvp.db "CREATE TABLE IF NOT EXISTS admin_users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, created_at DATETIME DEFAULT CURRENT_TIMESTAMP);"' >> /app/start.sh && \
+    echo '    echo "Database created successfully!"' >> /app/start.sh && \
+    echo 'else' >> /app/start.sh && \
+    echo '    echo "Database found, using existing one..."' >> /app/start.sh && \
+    echo 'fi' >> /app/start.sh && \
+    echo '' >> /app/start.sh && \
+    echo 'echo "Starting application..."' >> /app/start.sh && \
+    echo 'exec node server.js' >> /app/start.sh
 
 # Tornar o script executável
 RUN chmod +x /app/start.sh
+
+# Verificar se o script foi criado corretamente
+RUN ls -la /app/start.sh && cat /app/start.sh
 
 # Expor porta 3000
 EXPOSE 3000
