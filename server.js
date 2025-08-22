@@ -545,7 +545,7 @@ app.get('/api/admin/wedding/:slug/guests', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'Casamento não encontrado' });
         }
         
-        const guests = await guestOperations.getGuestsByWedding(wedding.id);
+        const guests = await guestOperations.getGuestsByWedding(slug);
         res.json(guests);
     } catch (error) {
         console.error('Erro ao buscar convidados:', error);
@@ -563,7 +563,7 @@ app.get('/api/admin/wedding/:slug/stats', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'Casamento não encontrado' });
         }
         
-        const stats = await guestOperations.getStatsByWedding(wedding.id);
+        const stats = await guestOperations.getStatsByWedding(slug);
         res.json(stats);
     } catch (error) {
         console.error('Erro ao buscar estatísticas:', error);
@@ -598,7 +598,7 @@ app.get('/api/admin/wedding/:slug/export', requireAuth, async (req, res) => {
             return res.status(404).json({ error: 'Casamento não encontrado' });
         }
         
-        const guests = await guestOperations.getGuestsByWedding(wedding.id);
+        const guests = await guestOperations.getGuestsByWedding(slug);
         
         // Preparar dados para exportação
         const exportData = guests.map(guest => ({

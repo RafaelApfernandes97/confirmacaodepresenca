@@ -548,15 +548,17 @@ const guestOperations = {
     },
 
     // Buscar todos os convidados de um casamento
-    getGuestsByWedding: (weddingId) => {
+    getGuestsByWedding: (weddingSlug) => {
         return new Promise((resolve, reject) => {
             db.all(
-                'SELECT * FROM guests WHERE wedding_id = ? ORDER BY created_at DESC',
-                [weddingId],
+                'SELECT * FROM guests WHERE wedding_slug = ? ORDER BY created_at DESC',
+                [weddingSlug],
                 (err, rows) => {
                     if (err) {
+                        console.error('❌ Erro ao buscar convidados:', err);
                         reject(err);
                     } else {
+                        console.log(`✓ ${rows.length} convidados encontrados para o casamento ${weddingSlug}`);
                         // Converter JSON strings de volta para arrays
                         const processedRows = rows.map(row => ({
                             ...row,
@@ -594,13 +596,14 @@ const guestOperations = {
     },
 
     // Buscar estatísticas de um casamento específico
-    getStatsByWedding: (weddingId) => {
+    getStatsByWedding: (weddingSlug) => {
         return new Promise((resolve, reject) => {
             db.all(
-                'SELECT children_details FROM guests WHERE wedding_id = ? AND children_details IS NOT NULL',
-                [weddingId],
+                'SELECT children_details FROM guests WHERE wedding_slug = ? AND children_details IS NOT NULL',
+                [weddingSlug],
                 (err, rows) => {
                     if (err) {
+                        console.error('❌ Erro ao buscar estatísticas de crianças:', err);
                         reject(err);
                         return;
                     }
@@ -633,22 +636,24 @@ const guestOperations = {
                             SUM(adults) as total_adults,
                             SUM(children) as total_children,
                             SUM(adults + children) as total_people
-                        FROM guests WHERE wedding_id = ?`,
-                        [weddingId],
+                        FROM guests WHERE wedding_slug = ?`,
+                        [weddingSlug],
                         (err, basicStats) => {
                             if (err) {
+                                console.error('❌ Erro ao buscar estatísticas básicas:', err);
                                 reject(err);
                                 return;
                             }
                             
                             // Combinar estatísticas básicas com as calculadas
-                            const stats = {
+                            const combinedStats = {
                                 ...basicStats,
                                 total_children_over6: totalChildrenOver6,
                                 total_children_under6: totalChildrenUnder6
                             };
                             
-                            resolve(stats);
+                            console.log(`✓ Estatísticas calculadas para casamento ${weddingSlug}:`, combinedStats);
+                            resolve(combinedStats);
                         }
                     );
                 }
