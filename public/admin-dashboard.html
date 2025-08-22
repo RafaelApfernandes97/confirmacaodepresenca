@@ -212,7 +212,8 @@
                                 <th class="px-4 py-3 text-center">Crianças</th>
                                 <th class="px-4 py-3 text-center">Total</th>
                                 <th class="px-4 py-3 text-left">Telefone</th>
-                                <th class="px-4 py-3 text-left rounded-r-lg">Data/Hora</th>
+                                <th class="px-4 py-3 text-left">Data/Hora</th>
+                                <th class="px-4 py-3 text-center rounded-r-lg">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="guestsTable" class="divide-y divide-gray-200">
@@ -299,6 +300,48 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal de Confirmação para Remover Convidado -->
+        <div id="removeGuestModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+            <div class="flex items-center justify-center min-h-screen p-4">
+                <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-exclamation-triangle mr-2 text-red-500"></i>Confirmar Remoção
+                        </h3>
+                        <button id="closeRemoveModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <p class="text-gray-600 mb-2">
+                            Tem certeza que deseja remover o convidado:
+                        </p>
+                        <p class="font-semibold text-gray-800" id="guestNameToRemove"></p>
+                        <p class="text-sm text-red-600 mt-2">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Esta ação não pode ser desfeita.
+                        </p>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button 
+                            id="confirmRemoveGuest"
+                            class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                        >
+                            <i class="fas fa-trash mr-2"></i>Sim, Remover
+                        </button>
+                        <button 
+                            id="cancelRemoveGuest"
+                            class="flex-1 px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-colors font-medium"
+                        >
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -347,6 +390,17 @@
             totalAdults.textContent = stats.total_adults || 0;
             totalChildren.textContent = stats.total_children || 0;
             totalPeople.textContent = stats.total_people || 0;
+        }
+
+        // Função para recalcular estatísticas localmente
+        function recalculateStats() {
+            const stats = {
+                total_confirmations: allGuests.length,
+                total_adults: allGuests.reduce((sum, guest) => sum + (guest.adults || 0), 0),
+                total_children: allGuests.reduce((sum, guest) => sum + (guest.children || 0), 0),
+                total_people: allGuests.reduce((sum, guest) => sum + (guest.adults || 0) + (guest.children || 0), 0)
+            };
+            updateStats(stats);
         }
 
         // Função para renderizar tabela de convidados
@@ -415,6 +469,15 @@
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-900">***${guest.phone}</td>
                         <td class="px-4 py-3 text-sm text-gray-500">${formatDate(guest.created_at)}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button 
+                                onclick="removeGuest(${guest.id}, '${guest.name}')"
+                                class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                title="Remover convidado"
+                            >
+                                <i class="fas fa-trash mr-1"></i>Remover
+                            </button>
+                        </td>
                     </tr>
                 `;
             }).join('');
@@ -605,6 +668,82 @@
         });
         logoutBtn.addEventListener('click', logout);
 
+        // Função para remover convidado
+        let guestToRemove = null;
+
+        function removeGuest(guestId, guestName) {
+            guestToRemove = guestId;
+            document.getElementById('guestNameToRemove').textContent = guestName;
+            document.getElementById('removeGuestModal').classList.remove('hidden');
+        }
+
+        // Função para confirmar remoção
+        async function confirmRemoveGuest() {
+            if (!guestToRemove) return;
+
+            try {
+                const response = await fetch(`/api/admin/wedding/${weddingSlug}/guests/${guestToRemove}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    // Remover da lista local
+                    allGuests = allGuests.filter(guest => guest.id !== guestToRemove);
+                    filteredGuests = filteredGuests.filter(guest => guest.id !== guestToRemove);
+                    
+                    // Atualizar interface
+                    recalculateStats();
+                    renderGuestsTable(filteredGuests);
+                    
+                    // Fechar modal
+                    document.getElementById('removeGuestModal').classList.add('hidden');
+                    
+                    // Mostrar mensagem de sucesso
+                    showSuccessMessage('Convidado removido com sucesso!');
+                } else {
+                    const error = await response.json();
+                    showErrorMessage(`Erro ao remover convidado: ${error.error || 'Erro desconhecido'}`);
+                }
+            } catch (error) {
+                console.error('Erro ao remover convidado:', error);
+                showErrorMessage('Erro de conexão ao remover convidado');
+            }
+        }
+
+        // Função para mostrar mensagem de sucesso
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            successDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Função para mostrar mensagem de erro
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            errorDiv.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle mr-2"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
         // Event listeners para o modal de compartilhamento
         document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
         document.getElementById('copyLinkBtn').addEventListener('click', copyLink);
@@ -615,6 +754,24 @@
         document.getElementById('shareModal').addEventListener('click', (e) => {
             if (e.target === document.getElementById('shareModal')) {
                 closeShareModal();
+            }
+        });
+
+        // Event listeners para o modal de remoção
+        document.getElementById('closeRemoveModal').addEventListener('click', () => {
+            document.getElementById('removeGuestModal').classList.add('hidden');
+        });
+
+        document.getElementById('cancelRemoveGuest').addEventListener('click', () => {
+            document.getElementById('removeGuestModal').classList.add('hidden');
+        });
+
+        document.getElementById('confirmRemoveGuest').addEventListener('click', confirmRemoveGuest);
+
+        // Fechar modal de remoção ao clicar fora
+        document.getElementById('removeGuestModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('removeGuestModal')) {
+                document.getElementById('removeGuestModal').classList.add('hidden');
             }
         });
 

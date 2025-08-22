@@ -296,6 +296,16 @@ app.get('/admin/wedding/:slug', requireAuth, async (req, res) => {
     }
 });
 
+// Health check para monitoramento
+app.get('/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+        version: '1.0.0'
+    });
+});
+
 // Dashboard público compartilhável (sem autenticação)
 app.get('/share/:slug', async (req, res) => {
     try {
@@ -327,6 +337,38 @@ app.get('/api/guests/:slug', async (req, res) => {
         res.json(guests);
     } catch (error) {
         console.error('Erro ao buscar convidados:', error);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+// API para remover convidado (requer autenticação admin)
+app.delete('/api/admin/wedding/:slug/guests/:guestId', requireAuth, async (req, res) => {
+    try {
+        const { slug, guestId } = req.params;
+        
+        // Verificar se o casamento existe
+        const wedding = await weddingOperations.getWeddingBySlug(slug);
+        if (!wedding) {
+            return res.status(404).json({ error: 'Casamento não encontrado' });
+        }
+        
+        // Verificar se o convidado existe
+        const guest = await guestOperations.getGuestById(guestId);
+        if (!guest) {
+            return res.status(404).json({ error: 'Convidado não encontrado' });
+        }
+        
+        // Verificar se o convidado pertence ao casamento
+        if (guest.wedding_id !== wedding.id) {
+            return res.status(403).json({ error: 'Convidado não pertence a este casamento' });
+        }
+        
+        // Remover o convidado
+        await guestOperations.deleteGuest(guestId);
+        
+        res.json({ success: true, message: 'Convidado removido com sucesso' });
+    } catch (error) {
+        console.error('Erro ao remover convidado:', error);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
