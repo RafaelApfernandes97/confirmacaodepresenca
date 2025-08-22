@@ -375,14 +375,19 @@
         function updateStatistics() {
             const total = allGuests.length;
             const adults = allGuests.reduce((sum, guest) => sum + guest.adults, 0);
-            const children = allGuests.reduce((sum, guest) => sum + guest.children, 0);
+            const children = allGuests.reduce((sum, guest) => {
+                if (guest.children_details && guest.children_details.length > 0) {
+                    return sum + guest.children_details.filter(child => child.over6).length;
+                }
+                return sum;
+            }, 0);
             const childrenUnder6 = allGuests.reduce((sum, guest) => {
                 if (guest.children_details && guest.children_details.length > 0) {
                     return sum + guest.children_details.filter(child => !child.over6).length;
                 }
                 return sum;
             }, 0);
-            const people = adults + children;
+            const people = adults + children + childrenUnder6;
 
             totalConfirmations.textContent = total;
             totalAdults.textContent = adults;

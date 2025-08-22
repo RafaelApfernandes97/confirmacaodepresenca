@@ -413,14 +413,28 @@
             const stats = {
                 total_confirmations: allGuests.length,
                 total_adults: allGuests.reduce((sum, guest) => sum + (guest.adults || 0), 0),
-                total_children: allGuests.reduce((sum, guest) => sum + (guest.children || 0), 0),
+                total_children: allGuests.reduce((sum, guest) => {
+                    if (guest.children_details && guest.children_details.length > 0) {
+                        return sum + guest.children_details.filter(child => child.over6).length;
+                    }
+                    return sum;
+                }, 0),
                 total_children_under6: allGuests.reduce((sum, guest) => {
                     if (guest.children_details && guest.children_details.length > 0) {
                         return sum + guest.children_details.filter(child => !child.over6).length;
                     }
                     return sum;
                 }, 0),
-                total_people: allGuests.reduce((sum, guest) => sum + (guest.adults || 0) + (guest.children || 0), 0)
+                total_people: allGuests.reduce((sum, guest) => {
+                    const adults = guest.adults || 0;
+                    const childrenOver6 = guest.children_details && guest.children_details.length > 0 
+                        ? guest.children_details.filter(child => child.over6).length 
+                        : 0;
+                    const childrenUnder6 = guest.children_details && guest.children_details.length > 0 
+                        ? guest.children_details.filter(child => !child.over6).length 
+                        : 0;
+                    return sum + adults + childrenOver6 + childrenUnder6;
+                }, 0)
             };
             updateStats(stats);
         }
