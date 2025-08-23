@@ -16,9 +16,20 @@ const guestOperations = {
     async insertGuest(guestData) {
         try {
             console.log('🆕 Inserindo novo convidado...');
-            const guest = new Guest(guestData);
+            
+            // Gerar número sequencial para o convidado
+            const lastGuest = await Guest.findOne({ guest_number: { $exists: true, $ne: null } }).sort({ 'guest_number': -1 });
+            const nextNumber = lastGuest && lastGuest.guest_number ? lastGuest.guest_number + 1 : 1;
+            
+            // Adicionar o número ao dados do convidado
+            const guestDataWithNumber = {
+                ...guestData,
+                guest_number: nextNumber
+            };
+            
+            const guest = new Guest(guestDataWithNumber);
             await guest.save();
-            console.log(`✅ Convidado inserido com sucesso: ${guest.name}`);
+            console.log(`✅ Convidado inserido com sucesso: ${guest.name} (ID: #${nextNumber})`);
             return guest;
         } catch (error) {
             console.error('❌ Erro ao inserir convidado:', error);

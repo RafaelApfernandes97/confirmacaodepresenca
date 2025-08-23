@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const guestSchema = new mongoose.Schema({
     guest_number: {
         type: Number,
-        required: true,
+        required: false,
         unique: true
     },
     wedding_slug: {
@@ -68,19 +68,21 @@ const guestSchema = new mongoose.Schema({
     collection: 'guests' // Nome da coleção no MongoDB
 });
 
-// Middleware para gerar número sequencial de convidado
-guestSchema.pre('save', async function(next) {
-    if (this.isNew && !this.guest_number) {
-        try {
-            // Buscar o maior número de convidado existente
-            const lastGuest = await this.constructor.findOne({}, {}, { sort: { 'guest_number': -1 } });
-            this.guest_number = lastGuest ? lastGuest.guest_number + 1 : 1;
-        } catch (error) {
-            return next(error);
-        }
-    }
-    next();
-});
+// Middleware para gerar número sequencial de convidado (temporariamente desabilitado)
+// guestSchema.pre('save', async function(next) {
+//     if (this.isNew && !this.guest_number) {
+//         try {
+//             // Buscar o maior número de convidado existente
+//             const lastGuest = await this.constructor.findOne().sort({ 'guest_number': -1 });
+//             this.guest_number = lastGuest ? lastGuest.guest_number + 1 : 1;
+//         } catch (error) {
+//             console.error('Erro ao gerar número de convidado:', error);
+//             // Em caso de erro, usar timestamp como fallback
+//             this.guest_number = Date.now();
+//         }
+//     }
+//     next();
+// });
 
 // Índices para melhor performance
 guestSchema.index({ wedding_slug: 1 });
