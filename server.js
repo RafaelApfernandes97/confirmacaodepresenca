@@ -20,17 +20,45 @@ const adminOperations = require('./operations/adminOperations');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configurar trust proxy para funcionar corretamente com Docker/proxy
+app.set('trust proxy', true);
+
 // Middleware de segurança
 app.use(helmet({
     contentSecurityPolicy: false, // Desabilitar CSP para permitir Tailwind CDN
 }));
-app.use(cors());
+
+// Configuração de sessão (deve vir antes do CORS)
+app.use(session({
+    secret: 'wedding-rsvp-secret-key-change-in-production',
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+        secure: false,
+        httpOnly: false,
+        maxAge: 24 * 60 * 60 * 1000
+    }
+}));
+
+// Configuração do CORS para permitir cookies e sessões
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
 // Rate limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutos
     max: 100, // máximo 100 requests por IP por janela
-    message: 'Muitas tentativas. Tente novamente em 15 minutos.'
+    message: 'Muitas tentativas. Tente novamente em 15 minutos.',
+    // Configurações adicionais para ambientes Docker/proxy
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Usar função personalizada para gerar chave do rate limit
+    keyGenerator: (req) => {
+        // Priorizar X-Forwarded-For se disponível, senão usar IP direto
+        return req.headers['x-forwarded-for']?.split(',')[0] || req.ip || req.connection.remoteAddress;
+    }
 });
 app.use(limiter);
 
@@ -38,7 +66,15 @@ app.use(limiter);
 const rsvpLimiter = rateLimit({
     windowMs: 60 * 1000, // 1 minuto
     max: 5, // máximo 5 tentativas de RSVP por minuto
-    message: { error: 'Muitas tentativas de confirmação. Tente novamente em 1 minuto.' }
+    message: { error: 'Muitas tentativas de confirmação. Tente novamente em 1 minuto.' },
+    // Configurações adicionais para ambientes Docker/proxy
+    standardHeaders: true,
+    legacyHeaders: false,
+    // Usar função personalizada para gerar chave do rate limit
+    keyGenerator: (req) => {
+        // Priorizar X-Forwarded-For se disponível, senão usar IP direto
+        return req.headers['x-forwarded-for']?.split(',')[0] || req.ip || req.connection.remoteAddress;
+    }
 });
 
 // Configuração do multer para upload de imagens
@@ -77,25 +113,24 @@ const upload = multer({
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
-// Configuração de sessão
-app.use(session({
-    secret: 'wedding-rsvp-secret-key-change-in-production',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        secure: false, // true em produção com HTTPS
-        maxAge: 24 * 60 * 60 * 1000 // 24 horas
-    }
-}));
-
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Middleware para verificar autenticação admin
 function requireAuth(req, res, next) {
+    console.log('🔐 Verificando autenticação...');
+    console.log('📋 Sessão:', {
+        sessionId: req.sessionID,
+        adminId: req.session?.adminId,
+        adminUsername: req.session?.adminUsername,
+        sessionKeys: req.session ? Object.keys(req.session) : 'Nenhuma sessão'
+    });
+    
     if (req.session && req.session.adminId) {
+        console.log('✅ Usuário autenticado:', req.session.adminUsername);
         next();
     } else {
+        console.log('❌ Usuário não autenticado');
         res.status(401).json({ error: 'Acesso negado. Faça login.' });
     }
 }
@@ -312,6 +347,17 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Endpoint de teste para debug da sessão
+app.get('/debug-session', (req, res) => {
+    res.json({
+        sessionID: req.sessionID,
+        session: req.session,
+        sessionKeys: req.session ? Object.keys(req.session) : [],
+        cookies: req.headers.cookie,
+        userAgent: req.headers['user-agent']
+    });
+});
+
 // Dashboard público compartilhável (sem autenticação)
 app.get('/share/:slug', async (req, res) => {
     try {
@@ -393,13 +439,37 @@ app.post('/api/admin/login', async (req, res) => {
         const admin = await adminOperations.authenticate(username, password);
         
         if (admin) {
-            req.session.adminId = admin.id;
+            console.log('👤 Admin encontrado:', { 
+                id: admin._id, 
+                idType: typeof admin._id,
+                username: admin.username,
+                adminObject: admin
+            });
+            
+            // Forçar o save da sessão
+            req.session.adminId = admin._id.toString();
             req.session.adminUsername = admin.username;
             
-            res.json({
-                success: true,
-                message: 'Login realizado com sucesso!',
-                redirectTo: '/admin/weddings'
+            console.log('🔐 Sessão configurada:', {
+                sessionId: req.sessionID,
+                adminId: req.session.adminId,
+                adminUsername: req.session.adminUsername,
+                sessionKeys: Object.keys(req.session)
+            });
+            
+            // Forçar o save da sessão
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ Erro ao salvar sessão:', err);
+                    return res.status(500).json({ error: 'Erro ao criar sessão' });
+                }
+                
+                console.log('✅ Sessão salva com sucesso');
+                res.json({
+                    success: true,
+                    message: 'Login realizado com sucesso!',
+                    redirectTo: '/admin/weddings'
+                });
             });
         } else {
             res.status(401).json({
@@ -630,7 +700,7 @@ app.get('/api/admin/wedding/:slug/export', requireAuth, async (req, res) => {
         
         // Preparar dados para exportação
         const exportData = guests.map(guest => ({
-            id: guest.id,
+            id: guest.guest_number,
             name: guest.name,
             adults: guest.adults,
             children: guest.children,
@@ -640,7 +710,7 @@ app.get('/api/admin/wedding/:slug/export', requireAuth, async (req, res) => {
                     `${child.name} (${child.over6 ? 'Maior de 6' : 'Menor de 6'})`
                 ).join(', ') : '',
             phone: guest.phone,
-            created_at: guest.created_at
+            created_at: guest.createdAt
         }));
 
         // Configurar CSV writer

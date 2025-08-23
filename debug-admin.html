@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Admin - Teste de API</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Debug Admin - Teste de API</h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Teste de Health Check -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Health Check</h2>
+                <button id="healthBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Testar Health
+                </button>
+                <div id="healthResult" class="mt-4 p-3 bg-gray-100 rounded text-sm font-mono"></div>
+            </div>
+            
+            <!-- Teste de Login -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Login Admin</h2>
+                <div class="space-y-3">
+                    <input type="text" id="username" placeholder="Usuário" value="admin" class="w-full p-2 border rounded">
+                    <input type="password" id="password" placeholder="Senha" value="admin123" class="w-full p-2 border rounded">
+                    <button id="loginBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">
+                        Fazer Login
+                    </button>
+                </div>
+                <div id="loginResult" class="mt-4 p-3 bg-gray-100 rounded text-sm font-mono"></div>
+            </div>
+            
+            <!-- Teste de Casamentos -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">API Casamentos</h2>
+                <button id="weddingsBtn" class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
+                    Buscar Casamentos
+                </button>
+                <div id="weddingsResult" class="mt-4 p-3 bg-gray-100 rounded text-sm font-mono max-h-40 overflow-y-auto"></div>
+            </div>
+            
+            <!-- Teste de Sessão -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-xl font-semibold mb-4">Status da Sessão</h2>
+                <button id="sessionBtn" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                    Verificar Sessão
+                </button>
+                <div id="sessionResult" class="mt-4 p-3 bg-gray-100 rounded text-sm font-mono"></div>
+            </div>
+        </div>
+        
+        <!-- Log de Eventos -->
+        <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Log de Eventos</h2>
+            <div id="eventLog" class="bg-gray-100 p-4 rounded text-sm font-mono max-h-60 overflow-y-auto"></div>
+        </div>
+    </div>
+
+    <script>
+        let sessionToken = null;
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('eventLog');
+            const logEntry = document.createElement('div');
+            logEntry.className = `mb-2 p-2 rounded ${type === 'error' ? 'bg-red-200' : type === 'success' ? 'bg-green-200' : 'bg-blue-200'}`;
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function showResult(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            if (isError) {
+                element.className = 'mt-4 p-3 bg-red-100 rounded text-sm font-mono';
+                element.textContent = `Erro: ${data}`;
+            } else {
+                element.className = 'mt-4 p-3 bg-green-100 rounded text-sm font-mono';
+                element.textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+            }
+        }
+        
+        // Health Check
+        document.getElementById('healthBtn').addEventListener('click', async () => {
+            try {
+                log('Testando health check...');
+                const response = await fetch('/health');
+                const data = await response.json();
+                showResult('healthResult', data);
+                log('Health check OK', 'success');
+            } catch (error) {
+                showResult('healthResult', error.message, true);
+                log(`Health check falhou: ${error.message}`, 'error');
+            }
+        });
+        
+        // Login
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            try {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                log(`Tentando login com usuário: ${username}`);
+                
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult('loginResult', data);
+                    sessionToken = data.sessionId || 'login-success';
+                    log('Login realizado com sucesso', 'success');
+                } else {
+                    showResult('loginResult', data.error, true);
+                    log(`Login falhou: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('loginResult', error.message, true);
+                log(`Erro no login: ${error.message}`, 'error');
+            }
+        });
+        
+        // Buscar Casamentos
+        document.getElementById('weddingsBtn').addEventListener('click', async () => {
+            try {
+                log('Buscando casamentos...');
+                
+                const response = await fetch('/api/admin/weddings', {
+                    credentials: 'include' // Incluir cookies de sessão
+                });
+                
+                if (response.status === 401) {
+                    showResult('weddingsResult', 'Não autenticado (401)', true);
+                    log('Acesso negado - usuário não autenticado', 'error');
+                } else if (response.ok) {
+                    const data = await response.json();
+                    showResult('weddingsResult', data);
+                    log(`Casamentos encontrados: ${data.length}`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    showResult('weddingsResult', errorData.error || 'Erro desconhecido', true);
+                    log(`Erro na API: ${errorData.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('weddingsResult', error.message, true);
+                log(`Erro ao buscar casamentos: ${error.message}`, 'error');
+            }
+        });
+        
+        // Verificar Sessão
+        document.getElementById('sessionBtn').addEventListener('click', async () => {
+            try {
+                log('Verificando status da sessão...');
+                
+                // Tentar acessar uma rota protegida para ver o status
+                const response = await fetch('/api/admin/weddings', {
+                    credentials: 'include'
+                });
+                
+                if (response.status === 401) {
+                    showResult('sessionResult', 'Sessão inválida ou expirada (401)', true);
+                    log('Sessão inválida', 'error');
+                } else if (response.status === 200) {
+                    showResult('sessionResult', 'Sessão válida (200)');
+                    log('Sessão válida', 'success');
+                } else {
+                    showResult('sessionResult', `Status inesperado: ${response.status}`);
+                    log(`Status inesperado: ${response.status}`);
+                }
+            } catch (error) {
+                showResult('sessionResult', error.message, true);
+                log(`Erro ao verificar sessão: ${error.message}`, 'error');
+            }
+        });
+        
+        // Log inicial
+        log('Página de debug carregada. Clique nos botões para testar as funcionalidades.');
+    </script>
+</body>
+</html>

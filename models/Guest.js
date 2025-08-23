@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 
 const guestSchema = new mongoose.Schema({
+    guest_number: {
+        type: Number,
+        required: true,
+        unique: true
+    },
     wedding_slug: {
         type: String,
         required: [true, 'Slug do casamento é obrigatório'],
-        trim: true,
-        index: true
+        trim: true
     },
     name: {
         type: String,
@@ -62,6 +66,20 @@ const guestSchema = new mongoose.Schema({
 }, {
     timestamps: true, // Adiciona createdAt e updatedAt automaticamente
     collection: 'guests' // Nome da coleção no MongoDB
+});
+
+// Middleware para gerar número sequencial de convidado
+guestSchema.pre('save', async function(next) {
+    if (this.isNew && !this.guest_number) {
+        try {
+            // Buscar o maior número de convidado existente
+            const lastGuest = await this.constructor.findOne({}, {}, { sort: { 'guest_number': -1 } });
+            this.guest_number = lastGuest ? lastGuest.guest_number + 1 : 1;
+        } catch (error) {
+            return next(error);
+        }
+    }
+    next();
 });
 
 // Índices para melhor performance

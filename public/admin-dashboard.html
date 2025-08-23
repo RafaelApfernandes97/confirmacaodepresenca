@@ -386,6 +386,16 @@
         const totalChildrenUnder6 = document.getElementById('totalChildrenUnder6');
         const totalPeople = document.getElementById('totalPeople');
 
+        // Função para verificar se a resposta indica sessão expirada
+        function checkAuthResponse(response) {
+            if (response.status === 401) {
+                console.log('🔐 Sessão expirada, redirecionando para login...');
+                window.location.href = '/admin';
+                return true; // Indica que a sessão expirou
+            }
+            return false; // Sessão válida
+        }
+
         // Função para mostrar erro
         function showError(message) {
             loading.classList.add('hidden');
@@ -396,7 +406,11 @@
 
         // Função para formatar data
         function formatDate(dateString) {
+            if (!dateString) return 'Data não informada';
+            
             const date = new Date(dateString);
+            if (isNaN(date.getTime())) return 'Data inválida';
+            
             return date.toLocaleString('pt-BR');
         }
 
@@ -482,7 +496,7 @@
                 
                 return `
                     <tr class="table-row">
-                        <td class="px-4 py-3 text-sm font-medium text-gray-900">#${guest.id}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-gray-900">#${guest.guest_number}</td>
                         <td class="px-4 py-3">
                             <div class="font-medium text-gray-900">${guest.name}</div>
                         </td>
@@ -505,10 +519,10 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm text-gray-900">***${guest.phone}</td>
-                        <td class="px-4 py-3 text-sm text-gray-500">${formatDate(guest.created_at)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-500">${formatDate(guest.createdAt)}</td>
                         <td class="px-4 py-3 text-center">
                             <button 
-                                onclick="removeGuest(${guest.id}, '${guest.name}')"
+                                onclick="removeGuest('${guest._id}', '${guest.name}', ${guest.guest_number})"
                                 class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
                                 title="Remover convidado"
                             >
@@ -548,12 +562,20 @@
                 // Obter slug do casamento
                 weddingSlug = getWeddingSlug();
 
+                // Verificar autenticação antes de carregar dados
+                const authCheckResponse = await fetch(`/api/admin/wedding/${weddingSlug}/stats`);
+                if (checkAuthResponse(authCheckResponse)) {
+                    return;
+                }
+
                 // Carregar dados em paralelo
                 const [weddingResponse, guestsResponse, statsResponse] = await Promise.all([
                     fetch(`/api/admin/wedding/${weddingSlug}`),
                     fetch(`/api/admin/wedding/${weddingSlug}/guests`),
                     fetch(`/api/admin/wedding/${weddingSlug}/stats`)
                 ]);
+
+
 
                 if (!weddingResponse.ok || !guestsResponse.ok || !statsResponse.ok) {
                     throw new Error('Erro ao carregar dados');
@@ -617,6 +639,10 @@
 
                 const response = await fetch(`/api/admin/wedding/${weddingSlug}/export`);
                 
+                if (checkAuthResponse(response)) {
+                    return;
+                }
+
                 if (response.ok) {
                     // Criar download do arquivo
                     const blob = await response.blob();
@@ -708,9 +734,9 @@
         // Função para remover convidado
         let guestToRemove = null;
 
-        function removeGuest(guestId, guestName) {
+        function removeGuest(guestId, guestName, guestNumber) {
             guestToRemove = guestId;
-            document.getElementById('guestNameToRemove').textContent = guestName;
+            document.getElementById('guestNameToRemove').textContent = `${guestName} (ID: #${guestNumber})`;
             document.getElementById('removeGuestModal').classList.remove('hidden');
         }
 
@@ -723,10 +749,14 @@
                     method: 'DELETE'
                 });
 
+                if (checkAuthResponse(response)) {
+                    return;
+                }
+
                 if (response.ok) {
                     // Remover da lista local
-                    allGuests = allGuests.filter(guest => guest.id !== guestToRemove);
-                    filteredGuests = filteredGuests.filter(guest => guest.id !== guestToRemove);
+                                allGuests = allGuests.filter(guest => guest._id !== guestToRemove);
+            filteredGuests = filteredGuests.filter(guest => guest._id !== guestToRemove);
                     
                     // Atualizar interface
                     recalculateStats();
@@ -793,6 +823,21 @@
                 closeShareModal();
             }
         });
+
+        // Função para verificar autenticação periodicamente
+        async function checkAuthentication() {
+            try {
+                const response = await fetch(`/api/admin/wedding/${weddingSlug}/stats`);
+                if (checkAuthResponse(response)) {
+                    return;
+                }
+            } catch (error) {
+                console.error('Erro ao verificar autenticação:', error);
+            }
+        }
+
+        // Verificar autenticação a cada 5 minutos
+        setInterval(checkAuthentication, 5 * 60 * 1000);
 
         // Event listeners para o modal de remoção
         document.getElementById('closeRemoveModal').addEventListener('click', () => {

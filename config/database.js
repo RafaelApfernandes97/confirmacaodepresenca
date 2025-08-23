@@ -5,8 +5,6 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://admin:admin@164.68.109
 
 // Opções de conexão
 const options = {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
     dbName: 'wedding_rsvp', // Nome do banco de dados
     maxPoolSize: 10, // Máximo de conexões no pool
     serverSelectionTimeoutMS: 5000, // Timeout para seleção do servidor

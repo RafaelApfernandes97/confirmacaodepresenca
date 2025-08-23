@@ -26,7 +26,6 @@ const adminUserSchema = new mongoose.Schema({
 });
 
 // Índices para melhor performance
-adminUserSchema.index({ username: 1 });
 adminUserSchema.index({ is_active: 1 });
 
 // Método para verificar senha

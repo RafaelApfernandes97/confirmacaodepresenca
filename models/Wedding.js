@@ -63,8 +63,7 @@ const weddingSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Slug é obrigatório'],
         unique: true,
-        trim: true,
-        index: true
+        trim: true
     },
     is_active: {
         type: Boolean,
@@ -76,7 +75,6 @@ const weddingSchema = new mongoose.Schema({
 });
 
 // Índices para melhor performance
-weddingSchema.index({ slug: 1 });
 weddingSchema.index({ is_active: 1 });
 weddingSchema.index({ createdAt: -1 });
 

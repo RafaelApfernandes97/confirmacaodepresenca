@@ -861,29 +861,48 @@
         // Função para carregar casamentos
         async function loadWeddings() {
             try {
+                console.log('🔄 Iniciando carregamento de casamentos...');
+                
                 loading.classList.remove('hidden');
                 weddingLists.classList.add('hidden');
                 errorMessage.classList.add('hidden');
 
-                const response = await fetch('/api/admin/weddings');
+                console.log('📡 Fazendo requisição para /api/admin/weddings...');
+                const response = await fetch('/api/admin/weddings', {
+                    credentials: 'include' // Incluir cookies de sessão
+                });
+                
+                console.log('📊 Resposta recebida:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    ok: response.ok
+                });
                 
                 if (!response.ok) {
-                    throw new Error('Erro ao carregar casamentos');
+                    if (response.status === 401) {
+                        throw new Error('Usuário não autenticado. Faça login novamente.');
+                    } else {
+                        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                    }
                 }
 
                 const weddings = await response.json();
+                console.log('📋 Casamentos recebidos:', weddings);
+                
                 currentWeddings = weddings;
 
                 renderWeddingCards(weddings);
 
                 loading.classList.add('hidden');
                 weddingLists.classList.remove('hidden');
+                
+                console.log('✅ Casamentos carregados com sucesso');
 
             } catch (error) {
-                console.error('Erro ao carregar casamentos:', error);
+                console.error('❌ Erro ao carregar casamentos:', error);
                 loading.classList.add('hidden');
                 errorMessage.classList.remove('hidden');
-                errorText.textContent = 'Erro ao carregar listas de casamentos. Tente novamente.';
+                errorText.textContent = error.message || 'Erro ao carregar listas de casamentos. Tente novamente.';
             }
         }
 
@@ -1216,6 +1235,10 @@
 
         // Event listeners para esquemas de cores
         document.addEventListener('DOMContentLoaded', function() {
+            // Carregar casamentos automaticamente na inicialização
+            console.log('🔄 Página carregada, carregando casamentos...');
+            loadWeddings();
+            
             // Seleção de esquemas de cores
             document.querySelectorAll('input[name="color_scheme"]').forEach(radio => {
                 radio.addEventListener('change', function() {
